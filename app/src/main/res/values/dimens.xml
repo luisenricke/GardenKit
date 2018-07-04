@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="horizontal">25dp</dimen>
+    <dimen name="vertical">15dp</dimen>
+    <dimen name="form">40dp</dimen>
+</resources>
