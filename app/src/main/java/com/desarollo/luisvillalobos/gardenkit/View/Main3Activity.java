@@ -27,6 +27,7 @@ import com.jjoe64.graphview.series.PointsGraphSeries;
 
 
 import org.achartengine.ChartFactory;
+import org.achartengine.GraphicalView;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
@@ -95,8 +96,6 @@ public class Main3Activity extends AppCompatActivity {
         databaseAccess.close();
 
 
-
-
         spnUpdateTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
@@ -154,50 +153,114 @@ public class Main3Activity extends AppCompatActivity {
                             }
                         }
 
+                        /*
                         Date [] arrayDates = new Date[table.length];
                         for (int i = 0; i <table.length ; i++) {
                             arrayDates[i] = new Date(table[i][0]);
+                            Log.d("fecha",arrayDates[i].getMonth()+"."+String.format("%02d", arrayDates[i].getDay())+String.format("%02d", arrayDates[i].getHours())+String.format("%02d", arrayDates[i].getMinutes())+String.format("%02d", arrayDates[i].getSeconds()));
+                        }
+                        */
+                        //Date [] arrayDates = new Date[table.length];
+                        /*double[] arrayDates = new double[table.length];
+                        for (int i = 0; i < table.length; i++) {
+                            Date tempDate = new Date(table[i][0]);
+                            arrayDates[i] = Double.parseDouble(tempDate.getMonth() + 1 + "." + String.format("%02d", tempDate.getDay()) + String.format("%02d", tempDate.getHours()) + String.format("%02d", tempDate.getMinutes()) + String.format("%02d", tempDate.getSeconds()));
+                            Log.d("fecha", String.format("%02d", tempDate.getMonth()) + "." + String.format("%02d", tempDate.getDay()) + String.format("%02d", tempDate.getHours()) + String.format("%02d", tempDate.getMinutes()) + String.format("%02d", tempDate.getSeconds()));
+                        }
+                        */
+
+                        String [] arrayDate = new String[table.length];
+                        for (int i = 0; i < table.length; i++) {
+                            Date tempDate = new Date(table[i][0]);
+                            arrayDate[i] = String.format("%02d", tempDate.getMonth())  + "." + String.format("%02d", tempDate.getDay()) + String.format("%02d", tempDate.getHours()) + String.format("%02d", tempDate.getMinutes()) + String.format("%02d", tempDate.getSeconds());
+                            Log.d("fecha", String.format("%02d", tempDate.getMonth()) + "." + String.format("%02d", tempDate.getDay()) + String.format("%02d", tempDate.getHours()) + String.format("%02d", tempDate.getMinutes()) + String.format("%02d", tempDate.getSeconds()));
                         }
 
-                        int [] arrayTemp = new int[table.length];
+                        int[] arrayTemp = new int[table.length];
                         for (int i = 0; i < table.length; i++) {
                             arrayTemp[i] = Integer.parseInt(table[i][1]);
+                            Log.d("temperatura", arrayTemp[i] + " ");
                         }
 
                         //--------------------------
-                        String[] mMonth = new String[] {
-                                "Jan", "Feb" , "Mar", "Apr", "May", "Jun",
-                                "Jul", "Aug" , "Sep", "Oct", "Nov", "Dec"
-                        };
-                        int[] x_values = { 1,2,3,4,5,6,7,8 };
-                        int[] y_values = { 1000,1500,1700,2000,2500,3000,3500,3600};
-                        XYSeries expenseSeries = new XYSeries("Expense");
-                        for(int i=0;i<x_values.length;i++){
+                        graphTemp.removeAllViews();
+                        String[] mMonth;
+                        double arrayDates[] = new  double[table.length];
+
+                        if (postFix.equals("horas")){
+                            mMonth = new String[]{
+                                    "00:00","01:00", "02:00", "03:00", "04:00", "05:00",
+                                    "06:00", "07:00", "08:00", "09:00", "10:00",
+                                    "11:00", "12:00",
+                                    "13:00", "14:00", "15:00", "16:00", "17:00",
+                                    "18:00", "19:00", "20:00", "21:00", "22:00",
+                                    "23:00"
+                            };
+
+
+                            for (int i = 0; i < table.length; i++) {
+                                String temp="";
+                                //temp = (String.valueOf(arrayDates[i]).substring(2).equals("10") || String.valueOf(arrayDates[i]).substring(2).equals("11") || String.valueOf(arrayDates[i]).substring(2).equals("11")) ?"":"2";
+                                arrayDates[i] = Double.parseDouble(arrayDate[i].substring(5,7)+"."+arrayDate[i].substring(7,9));
+                                Log.d("fecha", arrayDates[i]+" x");
+                            }
+
+                        }else{
+                            mMonth = new String[]{
+                                    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                            };
+                            for (int i = 0; i < table.length; i++) {
+                                arrayDates[i]= Double.parseDouble(arrayDate[i]);
+                            }
+                        }
+
+
+                        //int[] x_values = {1, 2, 3, 4, 5, 6, 7};
+                        double[] x_values = arrayDates;
+                        //int[] y_values = {1000, 1500, 1700, 2000, 2500, 3000, 3500, 3600};
+                        int[] y_values = arrayTemp;
+
+                        XYSeries expenseSeries = new XYSeries("Temperatura");
+                        for (int i = 0; i < x_values.length; i++) {
                             expenseSeries.add(x_values[i], y_values[i]);
                         }
+
                         XYMultipleSeriesDataset xyMultipleSeriesDataset = new XYMultipleSeriesDataset();
                         xyMultipleSeriesDataset.addSeries(expenseSeries);
 
                         XYSeriesRenderer renderer = new XYSeriesRenderer();
-                        renderer.setColor(Color.GREEN);
+                        renderer.setColor(Color.RED);
                         renderer.setPointStyle(PointStyle.CIRCLE);
                         renderer.setFillPoints(true);
                         renderer.setLineWidth(3);
                         renderer.setDisplayChartValues(true);
 
                         XYMultipleSeriesRenderer multiRenderer = new XYMultipleSeriesRenderer();
+                        multiRenderer.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00));
+                        multiRenderer.setYLabelsColor(0, Color.RED);
+                        multiRenderer.setLabelsColor(Color.BLACK);
+                        multiRenderer.setXLabelsColor(Color.RED);
                         multiRenderer.setXLabels(0);
-                        multiRenderer.setChartTitle("Expense Chart");
-                        multiRenderer.setXTitle("Year 2016");
-                        multiRenderer.setYTitle("Amount in Dollars");
-                        multiRenderer.setZoomButtonsVisible(true);
-                        for(int i=0;i<x_values.length;i++){
-                            multiRenderer.addXTextLabel(i+1, mMonth[i]);
+                        multiRenderer.setChartTitle("Grafica de temperatura 1");
+                        multiRenderer.setXTitle("Tiempo");
+                        multiRenderer.setYTitle("Grados °C");
+                        multiRenderer.setShowGrid(true); // we show the grid
+                        //multiRenderer.setYAxisMax(3600);
+                        //multiRenderer.setYAxisMin(0);
+
+
+                        multiRenderer.setShowGrid(true); // we show the grid
+                        for (int i = 0; i < x_values.length; i++) {
+                            multiRenderer.addXTextLabel(i + 1, mMonth[i]);
                         }
 
                         multiRenderer.addSeriesRenderer(renderer);
-                        View chart = ChartFactory.getLineChartView(context, xyMultipleSeriesDataset, multiRenderer);
-                        graphTemp.addView(chart);
+
+                        GraphicalView chart = ChartFactory.getLineChartView(getBaseContext(), xyMultipleSeriesDataset, multiRenderer);
+
+                        graphTemp.addView(chart, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 500));
+
                         //---------------------------
 
                     } else {
@@ -222,7 +285,6 @@ public class Main3Activity extends AppCompatActivity {
                 finish();
             }
         });
-
 
 
     }
