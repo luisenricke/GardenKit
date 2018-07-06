@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,6 +27,7 @@ public class Main2Activity extends AppCompatActivity {
     private EditText txtDevice;
     private EditText txtUser;
     private Button btnAdd;
+
     private Context context;
     private DatabaseAccess databaseAccess;
 
@@ -34,10 +36,13 @@ public class Main2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         context = getBaseContext();
+
+        //Configuración de Activity
         SetUpActivity.hiderActionBar(this);
         SetUpActivity.hideStatusBar(this);
         SetUpActivity.hideSoftKeyboard(this);
 
+        //Instanciando los Views
         imgLogo = (ImageView) findViewById(R.id.logo);
         imgBtnBack = (ImageButton) findViewById(R.id.btnBack);
         txtDescription = (EditText) findViewById(R.id.txtDescription);
@@ -46,39 +51,59 @@ public class Main2Activity extends AppCompatActivity {
         txtUser = (EditText) findViewById(R.id.txtUser);
         btnAdd = (Button) findViewById(R.id.btnAdd);
 
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent returnIntent = getIntent();
+        //Configurando las views
+        btnAdd.setOnClickListener(new AddBtnClick());
+        imgBtnBack.setOnClickListener(new BackImgBtnClick());
+    }
+
+    class AddBtnClick implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            Intent returnIntent = getIntent();
 
 
-                if (txtDescription.getText().toString().trim().length() != 0 && txtApiKey.getText().toString().trim().length() != 0 && txtDevice.getText().toString().trim().length() != 0 && txtUser.getText().toString().trim().length() != 0) {
-                    Device device = new Device(txtDescription.getText().toString(), txtApiKey.getText().toString(), txtDevice.getText().toString(), txtUser.getText().toString());
-                    returnIntent.putExtra("object", device);
-                    setResult(Activity.RESULT_OK, returnIntent);
-                    finish();
-                } else {
-                    Toast.makeText(context, "No se rellenaron los campos correctamentre", Toast.LENGTH_SHORT).show();
-                }
+            if (txtDescription.getText().toString().trim().length() != 0 && txtApiKey.getText().toString().trim().length() != 0 && txtDevice.getText().toString().trim().length() != 0 && txtUser.getText().toString().trim().length() != 0) {
+                Device device = new Device(txtDescription.getText().toString().trim(), txtApiKey.getText().toString().trim(), txtDevice.getText().toString().trim(), txtUser.getText().toString().trim());
+                returnIntent.putExtra("object", device);
+                returnIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                returnIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            } else {
+                Toast.makeText(context, "No se rellenaron los campos correctamentre", Toast.LENGTH_SHORT).show();
             }
-        });
+        }
+    }
 
-        imgBtnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent returnIntent = getIntent();
+    class BackImgBtnClick implements View.OnClickListener {
 
-                if (txtDescription.getText().toString().trim().length() != 0 && txtApiKey.getText().toString().trim().length() != 0 && txtDevice.getText().toString().trim().length() != 0 && txtUser.getText().toString().trim().length() != 0) {
-                    Device device = new Device(txtDescription.getText().toString(), txtApiKey.getText().toString(), txtDevice.getText().toString(), txtUser.getText().toString());
-                    returnIntent.putExtra("object", device);
-                    setResult(Activity.RESULT_OK, returnIntent);
-                    finish();
-                } else {
-                    setResult(Activity.RESULT_CANCELED, returnIntent);
-                    finish();
-                }
+        @Override
+        public void onClick(View view) {
+            Intent returnIntent = getIntent();
+            if (txtDescription.getText().toString().trim().length() != 0 && txtApiKey.getText().toString().trim().length() != 0 && txtDevice.getText().toString().trim().length() != 0 && txtUser.getText().toString().trim().length() != 0) {
+                Device device = new Device(txtDescription.getText().toString(), txtApiKey.getText().toString(), txtDevice.getText().toString(), txtUser.getText().toString());
+                returnIntent.putExtra("object", device);
+                returnIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                returnIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            } else {
+                setResult(Activity.RESULT_CANCELED, returnIntent);
+                finish();
             }
-        });
+        }
+    }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(intent);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
