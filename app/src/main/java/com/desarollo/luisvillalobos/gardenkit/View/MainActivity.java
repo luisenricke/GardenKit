@@ -7,11 +7,10 @@ import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,7 +24,6 @@ import com.desarollo.luisvillalobos.gardenkit.R;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageView imgLogo;
     private ImageButton imgBtnAdd;
     private ListView lvDevice;
 
@@ -44,14 +42,20 @@ public class MainActivity extends AppCompatActivity {
         SetUpActivity.hideSoftKeyboard(this);
 
         //Instanciando los Views
-        imgLogo = (ImageView) findViewById(R.id.logo);
-        imgBtnAdd = (ImageButton) findViewById(R.id.btnAdd);
-        lvDevice = (ListView) findViewById(R.id.lvDevice);
+        imgBtnAdd = findViewById(R.id.btnAdd);
+        lvDevice = findViewById(R.id.lvDevice);
 
         //Configurando el ListView
         databaseAccess = DatabaseAccess.getInstance(this);
         databaseAccess.open();
         Cursor cursor = databaseAccess.getDevices();
+
+        cursor.moveToFirst();
+        do {
+            Log.d("Dispositivos", cursor.getString(cursor.getColumnIndexOrThrow("_id")));
+        } while (cursor.moveToNext());
+
+
         DeviceCursorAdapter adapter = new DeviceCursorAdapter(context, cursor);
         lvDevice.setAdapter(adapter);
         lvDevice.setOnItemClickListener(new lvDeviceClick());
@@ -63,10 +67,10 @@ public class MainActivity extends AppCompatActivity {
     class lvDeviceClick implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            TextView lblDescription = (TextView) view.findViewById(R.id.lblDescription);
-            TextView lblApikey = (TextView) view.findViewById(R.id.lblApiKey);
-            TextView lblDevice = (TextView) view.findViewById(R.id.lblDevice);
-            TextView lblUser = (TextView) view.findViewById(R.id.lblUser);
+            TextView lblDescription = view.findViewById(R.id.lblDescription);
+            TextView lblApikey = view.findViewById(R.id.lblApiKey);
+            TextView lblDevice = view.findViewById(R.id.lblDevice);
+            TextView lblUser = view.findViewById(R.id.lblUser);
 
             String _id = databaseAccess.getDevice(lblDescription.getText().toString(), lblApikey.getText().toString(), lblDevice.getText().toString(), lblUser.getText().toString());
             Intent intent = new Intent(context, Main3Activity.class);
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(context, Main2Activity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             startActivityForResult(intent, 1);
         }
     }
@@ -91,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
-                Device device = (Device) data.getParcelableExtra("object");
+                Device device = data.getParcelableExtra("object");
                 databaseAccess = DatabaseAccess.getInstance(this);
                 databaseAccess.open();
                 databaseAccess.setDevice(device.getDescripcion(), device.getApiKey(), device.getDevice(), device.getUser());
@@ -101,11 +106,11 @@ public class MainActivity extends AppCompatActivity {
                 lvDevice.setAdapter(adapter);
                 databaseAccess.close();
                 Toast.makeText(context, "Se ha agredado satisfactoriamente", Toast.LENGTH_LONG).show();
-            }
-            if (requestCode == Activity.RESULT_CANCELED) {
-                //Checar los mensajes porque no salen
+            } else {
                 Toast.makeText(context, "No se rellenaron los campos correctamente", Toast.LENGTH_LONG).show();
             }
+        } else {
+            Toast.makeText(context, "No se rellenaron los campos correctamente", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -113,5 +118,8 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         //Para no usar el boton hacia atras
         //super.onBackPressed();
+        //overridePendingTransition( 0, 0);
+        //System.exit(0);
+        moveTaskToBack(true);
     }
 }

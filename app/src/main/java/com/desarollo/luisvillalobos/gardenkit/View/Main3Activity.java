@@ -1,11 +1,9 @@
 package com.desarollo.luisvillalobos.gardenkit.View;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -15,28 +13,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-import com.desarollo.luisvillalobos.gardenkit.Controller.DateOperations;
-import com.desarollo.luisvillalobos.gardenkit.Controller.HTTPGetRequest;
-import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
+import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Model.Device;
 import com.desarollo.luisvillalobos.gardenkit.R;
-
-
-import org.achartengine.ChartFactory;
-import org.achartengine.GraphicalView;
-import org.achartengine.chart.PointStyle;
-import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.renderer.XYSeriesRenderer;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Dispisitivo 1: test_prueba@spikedev.spikedev;
@@ -48,15 +29,14 @@ import java.util.concurrent.ExecutionException;
 
 public class Main3Activity extends AppCompatActivity {
 
-    private ImageView imgLogo;
     private ImageButton imgBtnBack;
     private Spinner spnUpdateTime;
     private LinearLayout graphTemp;
 
     private Context context;
     private DatabaseAccess databaseAccess;
-    private Bundle bundle;
-    private String _id;
+    //private Bundle bundle;
+    //private String _id;
     private String[][] table;
 
     @Override
@@ -71,7 +51,6 @@ public class Main3Activity extends AppCompatActivity {
         SetUpActivity.hideSoftKeyboard(this);
 
         //Instanciando los Views
-        imgLogo = (ImageView) findViewById(R.id.logo);
         imgBtnBack = (ImageButton) findViewById(R.id.btnBack);
         spnUpdateTime = (Spinner) findViewById(R.id.spnUpdateTime);
         graphTemp = (LinearLayout) findViewById(R.id.graphTemp);
@@ -96,21 +75,17 @@ public class Main3Activity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnUpdateTime.setAdapter(adapter);
 
-        //bundle = getIntent().getExtras();
-        //_id = bundle.getString("_id");
-
         spnUpdateTime.setOnItemSelectedListener(new UpdateTimeSpn());
         imgBtnBack.setOnClickListener(new BackImgBtnClick());
-
     }
 
-    class UpdateTimeSpn implements AdapterView.OnItemSelectedListener{
+    class UpdateTimeSpn implements AdapterView.OnItemSelectedListener {
 
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-            bundle = getIntent().getExtras();
-            _id = bundle.getString("_id");
-            Log.d("_id",_id+" id xd");
+            Bundle bundle = getIntent().getExtras();
+            String _id = bundle.getString("_id");
+            Log.d("_id", _id + " id xd");
             databaseAccess = DatabaseAccess.getInstance(context);
             databaseAccess.open();
             Device device = databaseAccess.getDevice(_id);
@@ -279,8 +254,6 @@ public class Main3Activity extends AppCompatActivity {
             //Checar que hacer con esto
         }
     }
-
-
 
     class BackImgBtnClick implements View.OnClickListener {
 

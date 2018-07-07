@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
@@ -20,7 +19,6 @@ import com.desarollo.luisvillalobos.gardenkit.R;
 
 public class Main2Activity extends AppCompatActivity {
 
-    private ImageView imgLogo;
     private ImageButton imgBtnBack;
     private EditText txtDescription;
     private EditText txtApiKey;
@@ -43,7 +41,6 @@ public class Main2Activity extends AppCompatActivity {
         SetUpActivity.hideSoftKeyboard(this);
 
         //Instanciando los Views
-        imgLogo = (ImageView) findViewById(R.id.logo);
         imgBtnBack = (ImageButton) findViewById(R.id.btnBack);
         txtDescription = (EditText) findViewById(R.id.txtDescription);
         txtApiKey = (EditText) findViewById(R.id.txtApiKey);
@@ -61,8 +58,8 @@ public class Main2Activity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             Intent returnIntent = getIntent();
-
-
+            btnAdd.setEnabled(true);
+            btnAdd.setClickable(true);
             if (txtDescription.getText().toString().trim().length() != 0 && txtApiKey.getText().toString().trim().length() != 0 && txtDevice.getText().toString().trim().length() != 0 && txtUser.getText().toString().trim().length() != 0) {
                 Device device = new Device(txtDescription.getText().toString().trim(), txtApiKey.getText().toString().trim(), txtDevice.getText().toString().trim(), txtUser.getText().toString().trim());
                 returnIntent.putExtra("object", device);
@@ -71,8 +68,11 @@ public class Main2Activity extends AppCompatActivity {
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
             } else {
+                //overridePendingTransition( 0, 0);
                 Toast.makeText(context, "No se rellenaron los campos correctamentre", Toast.LENGTH_SHORT).show();
             }
+            btnAdd.setEnabled(true);
+            btnAdd.setClickable(true);
         }
     }
 
@@ -89,8 +89,12 @@ public class Main2Activity extends AppCompatActivity {
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
             } else {
+                returnIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                returnIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 setResult(Activity.RESULT_CANCELED, returnIntent);
-                finish();
+
+                finishFromChild(getParent());
+                //finish();
             }
         }
     }
@@ -98,10 +102,16 @@ public class Main2Activity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Intent intent = new Intent(context, MainActivity.class);
+            /*Intent intent = new Intent(context, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);
+            startActivity(intent);*/
+            Intent returnIntent = getIntent();
+            returnIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            returnIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            setResult(Activity.RESULT_CANCELED, returnIntent);
+            //finishFromChild(getParent());
+            finish();
             return true;
         }
         return super.onKeyDown(keyCode, event);
