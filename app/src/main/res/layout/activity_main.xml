@@ -25,8 +25,7 @@
             android:maxHeight="120dp"
             android:maxWidth="150dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/logo"
-            />
+            android:src="@drawable/logo" />
 
 
         <ImageButton
@@ -44,13 +43,13 @@
     <ListView
         android:id="@+id/lvDevice"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/vertical"
         android:layout_marginLeft="@dimen/horizontal"
         android:layout_marginRight="@dimen/horizontal"
         android:layout_marginTop="@dimen/horizontal"
         android:background="#f95454"
-        >
+        android:padding="1px">
 
     </ListView>
 
