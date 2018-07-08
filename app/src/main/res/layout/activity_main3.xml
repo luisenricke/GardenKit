@@ -61,15 +61,41 @@
                 android:id="@+id/spnUpdateTime"
                 android:layout_width="200dp"
                 android:layout_height="match_parent"
-                android:textAlignment="center"
                 android:background="@drawable/spn_shape"
-                />
+                android:textAlignment="center" />
 
 
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/graphTemp"
+            android:id="@+id/graphWet1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/horizontal"
+            android:layout_marginRight="@dimen/horizontal"
+            android:orientation="vertical" />
+
+        <LinearLayout
+            android:id="@+id/graphWet2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/horizontal"
+            android:layout_marginRight="@dimen/horizontal"
+            android:orientation="vertical" />
+
+        <LinearLayout
+            android:id="@+id/graphWet3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/horizontal"
+            android:layout_marginRight="@dimen/horizontal"
+            android:orientation="vertical" />
+
+        <LinearLayout
+            android:id="@+id/graphPh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -78,4 +104,5 @@
             android:orientation="vertical" />
 
     </LinearLayout>
+
 </ScrollView>
