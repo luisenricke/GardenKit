@@ -38,6 +38,8 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -84,7 +86,7 @@ public class Main3Activity extends AppCompatActivity {
         graphWet3 = (LinearLayout) findViewById(R.id.graphWet3);
 
         //Configurando el spinner
-        String[] itemChoose = {"12 horas", "24 horas", "7 días", "14 días", "1 mes", "Selecciona un periodo"};
+        String[] itemChoose = {"15 minutos", "30 minutos", "45 minutos", "2 horas", "5 horas", "12 horas", "24 horas", "3 días", "7 días",/* "14 días", "30 días","3 meses", "14 días", "4 mes",*/ "Selecciona un periodo"};
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, itemChoose) {
             @Override
             public int getCount() {
@@ -120,10 +122,10 @@ public class Main3Activity extends AppCompatActivity {
 
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-            int number = -1;
-            String postFix = "";
+            if (position != spnUpdateTime.getCount()) {
+                int number = -1;
+                String postFix = "";
 
-            if (position<spnUpdateTime.getCount()+1) {
                 //Agarro el dispositivo de la base de datos
                 Bundle bundle = getIntent().getExtras();
                 String _id = bundle.getString("_id");
@@ -153,18 +155,17 @@ public class Main3Activity extends AppCompatActivity {
                 //Preparo las fechas para graficar
                 Date currentTime = Calendar.getInstance().getTime();
                 Date pastDate = currentTime;
-
-                if ((postFix.equals("horas") || postFix.equals("hora")) && number != -1)
+                if ((postFix.equals("minutos") || postFix.equals("hora")) && number != -1)
+                    pastDate = DateOperations.subMinute(currentTime, number);
+                else if ((postFix.equals("horas") || postFix.equals("hora")) && number != -1)
                     pastDate = DateOperations.subHour(currentTime, number);
                 else if (postFix.equals("días") && number != -1)
                     pastDate = DateOperations.subDay(currentTime, number);
                 else if ((postFix.equals("mes") || postFix.equals("meses") && number != -1))
                     pastDate = DateOperations.subMonth(currentTime, number);
 
-
                 try {
                     String json = new HTTPGetRequest().execute(myUrl, device, apiKey, currentTime.toString(), pastDate.toString()).get();
-
                     if (!json.equals("Error") && !json.equals("")) {
                         String colum = ",";
                         String row = "#";
@@ -180,13 +181,11 @@ public class Main3Activity extends AppCompatActivity {
                             }
                         }
 
-
-
                         //Formateo la fecha para poder utilizarlo en dado caso sea horas, dias o meses
                         String[] arrayDate = new String[table.length];
                         for (int i = 0; i < table.length; i++) {
                             Date tempDate = new Date(table[i][0]);
-                            arrayDate[i] = String.format("%02d", tempDate.getMonth()) + "." + String.format("%02d", tempDate.getDay()) + String.format("%02d", tempDate.getHours()) + String.format("%02d", tempDate.getMinutes()) + String.format("%02d", tempDate.getSeconds());
+                            arrayDate[i] = String.format("%02d", DateOperations.getMonth(tempDate)) + "." + String.format("%02d", DateOperations.getDay(tempDate)) + String.format("%02d", DateOperations.getHour(tempDate)) + String.format("%02d", DateOperations.getMinute(tempDate)) + String.format("%02d", DateOperations.getSecond(tempDate));
                         }
 
                         //Aqui se crearan las cadenas por separadas obtenidas de la tabla del json
@@ -206,25 +205,9 @@ public class Main3Activity extends AppCompatActivity {
                         graphWet3.removeAllViews();
                         graphPh.removeAllViews();
 
-                        String[] mMonth;
-                        double arrayDates[] = new double[table.length];
-                        ArrayList<Integer> tempInt = new ArrayList<Integer>();
-                        int tempHora = currentTime.getHours();
-                        Date dateIterator = Calendar.getInstance().getTime();
-
-                        if (postFix.equals("horas")) {
-                            for (int i = 0; i < table.length; i++) {
-                                String temp = "";
-                                arrayDates[i] = Double.parseDouble(arrayDate[i].substring(5, 7) + "." + arrayDate[i].substring(7, 9) + arrayDate[i].substring(9, 11));
-                            }
-                        } else if (postFix.equals("días")) {
-                            for (int i = 0; i < table.length; i++) {
-                                arrayDates[i] = Double.parseDouble(arrayDate[i]);
-                            }
-                        } else if (postFix.equals("mes")) {
-
-                        } else if (postFix.equals("meses")) {
-
+                        BigDecimal bd[] = new BigDecimal[table.length];
+                        for (int i = 0; i < table.length; i++) {
+                            bd[i] = new BigDecimal(arrayDate[i]);
                         }
 
                         XYSeries expenseSeriesWet1 = new XYSeries("Humedad 1");
@@ -232,20 +215,20 @@ public class Main3Activity extends AppCompatActivity {
                         XYSeries expenseSeriesWet3 = new XYSeries("Humedad 3");
                         XYSeries expenseSeriesPh = new XYSeries("PH");
 
-                        for (int i = 0; i < arrayDates.length; i++) {
-                            expenseSeriesWet1.add(arrayDates[i], arrayWet1[i]);
-                            expenseSeriesWet2.add(arrayDates[i], arrayWet2[i]);
-                            expenseSeriesWet3.add(arrayDates[i], arrayWet3[i]);
-                            expenseSeriesPh.add(arrayDates[i], arrayPh[i]);
+                        for (int i = 0; i < bd.length; i++) {
+                            expenseSeriesWet1.add(bd[i].doubleValue(), arrayWet1[i]);
+                            expenseSeriesWet2.add(bd[i].doubleValue(), arrayWet2[i]);
+                            expenseSeriesWet3.add(bd[i].doubleValue(), arrayWet3[i]);
+                            expenseSeriesPh.add(bd[i].doubleValue(), arrayPh[i]);
                         }
 
                         XYMultipleSeriesDataset xyMultipleSeriesDatasetWet1 = new XYMultipleSeriesDataset();
-                        XYMultipleSeriesDataset xyMultipleSeriesDatasetWet2 = new XYMultipleSeriesDataset();
-                        XYMultipleSeriesDataset xyMultipleSeriesDatasetWet3 = new XYMultipleSeriesDataset();
-                        XYMultipleSeriesDataset xyMultipleSeriesDatasetPh = new XYMultipleSeriesDataset();
                         xyMultipleSeriesDatasetWet1.addSeries(expenseSeriesWet1);
+                        XYMultipleSeriesDataset xyMultipleSeriesDatasetWet2 = new XYMultipleSeriesDataset();
                         xyMultipleSeriesDatasetWet2.addSeries(expenseSeriesWet2);
+                        XYMultipleSeriesDataset xyMultipleSeriesDatasetWet3 = new XYMultipleSeriesDataset();
                         xyMultipleSeriesDatasetWet3.addSeries(expenseSeriesWet3);
+                        XYMultipleSeriesDataset xyMultipleSeriesDatasetPh = new XYMultipleSeriesDataset();
                         xyMultipleSeriesDatasetPh.addSeries(expenseSeriesPh);
 
                         XYSeriesRenderer renderer = new XYSeriesRenderer();
@@ -255,21 +238,6 @@ public class Main3Activity extends AppCompatActivity {
                         renderer.setLineWidth(3);
                         renderer.setDisplayChartValues(true);
 
-                        XYMultipleSeriesRenderer multiRendererPh = new XYMultipleSeriesRenderer();
-                        multiRendererPh.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00));
-                        multiRendererPh.setYLabelsColor(0, Color.RED);
-                        multiRendererPh.setLabelsColor(Color.BLACK);
-                        multiRendererPh.setXLabelsColor(Color.RED);
-                        multiRendererPh.setXLabels(0);
-                        multiRendererPh.setChartTitle("Grafica de temperatura");
-                        multiRendererPh.setXTitle("Tiempo");
-                        multiRendererPh.setYTitle("Grados °C");
-                        multiRendererPh.setShowGrid(true); // we show the grid
-                        multiRendererPh.setPanEnabled(false, false);
-                        multiRendererPh.setZoomEnabled(false, false);
-                        multiRendererPh.setShowGrid(true); // we show the grid
-                        multiRendererPh.addSeriesRenderer(renderer);
-
                         XYMultipleSeriesRenderer multiRendererWet1 = new XYMultipleSeriesRenderer();
                         multiRendererWet1.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00));
                         multiRendererWet1.setYLabelsColor(0, Color.RED);
@@ -278,12 +246,11 @@ public class Main3Activity extends AppCompatActivity {
                         multiRendererWet1.setXLabels(0);
                         multiRendererWet1.setChartTitle("Grafica de Humedad 1");
                         multiRendererWet1.setXTitle("Tiempo");
-                        multiRendererWet1.setYTitle("% de PH");
+                        multiRendererWet1.setYTitle("°C");
                         multiRendererWet1.setShowGrid(true); // we show the grid
-                        //multiRendererWet1.setPanEnabled(false, false);
-                        //multiRendererWet1.setZoomEnabled(false, false);
                         multiRendererWet1.setShowGrid(true); // we show the grid
                         multiRendererWet1.addSeriesRenderer(renderer);
+                        multiRendererWet1.setZoomButtonsVisible(true);
 
                         XYMultipleSeriesRenderer multiRendererWet2 = new XYMultipleSeriesRenderer();
                         multiRendererWet2.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00));
@@ -293,12 +260,13 @@ public class Main3Activity extends AppCompatActivity {
                         multiRendererWet2.setXLabels(0);
                         multiRendererWet2.setChartTitle("Grafica de Humedad 2");
                         multiRendererWet2.setXTitle("Tiempo");
-                        multiRendererWet2.setYTitle("% de PH");
+                        multiRendererWet2.setYTitle("°C");
                         multiRendererWet2.setShowGrid(true); // we show the grid
-                        multiRendererWet2.setPanEnabled(false, false);
-                        multiRendererWet2.setZoomEnabled(false, false);
+                        //multiRendererWet2.setPanEnabled(false, false);
+                        //multiRendererWet2.setZoomEnabled(false, false);
                         multiRendererWet2.setShowGrid(true); // we show the grid
                         multiRendererWet2.addSeriesRenderer(renderer);
+                        multiRendererWet2.setZoomButtonsVisible(true);
 
                         XYMultipleSeriesRenderer multiRendererWet3 = new XYMultipleSeriesRenderer();
                         multiRendererWet3.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00));
@@ -308,38 +276,86 @@ public class Main3Activity extends AppCompatActivity {
                         multiRendererWet3.setXLabels(0);
                         multiRendererWet3.setChartTitle("Grafica de Humedad 3");
                         multiRendererWet3.setXTitle("Tiempo");
-                        multiRendererWet3.setYTitle("% de PH");
+                        multiRendererWet3.setYTitle("°C");
                         multiRendererWet3.setShowGrid(true); // we show the grid
-                        multiRendererWet3.setPanEnabled(false, false);
-                        multiRendererWet3.setZoomEnabled(false, false);
+                        //multiRendererWet3.setPanEnabled(false, false);
+                        //multiRendererWet3.setZoomEnabled(false, false);
                         multiRendererWet3.setShowGrid(true); // we show the grid
                         multiRendererWet3.addSeriesRenderer(renderer);
+                        multiRendererWet3.setZoomButtonsVisible(true);
 
+                        XYMultipleSeriesRenderer multiRendererPh = new XYMultipleSeriesRenderer();
+                        multiRendererPh.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00));
+                        multiRendererPh.setYLabelsColor(0, Color.RED);
+                        multiRendererPh.setLabelsColor(Color.BLACK);
+                        multiRendererPh.setXLabelsColor(Color.RED);
+                        multiRendererPh.setXLabels(0);
+                        multiRendererPh.setChartTitle("Grafica de PH");
+                        multiRendererPh.setXTitle("Tiempo");
+                        multiRendererPh.setYTitle("% de PH");
+                        multiRendererPh.setShowGrid(true); // we show the grid
+                        //multiRendererPh.setPanEnabled(false, false);
+                        //multiRendererPh.setZoomEnabled(false, false);
+                        multiRendererPh.setShowGrid(true); // we show the grid
+                        multiRendererPh.addSeriesRenderer(renderer);
+                        multiRendererPh.setZoomButtonsVisible(true);
 
-/*
+                        ArrayList<String> tempString = new ArrayList<String>();
+                        ArrayList<BigDecimal> tempDouble = new ArrayList<BigDecimal>();
+                        Date dateIterator = Calendar.getInstance().getTime();
+
+                        if (postFix.equals("minutos")) {
+                            dateIterator = DateOperations.subMinute(dateIterator, number - 1);
+                            for (int i = 0; i < number - 1; i++) {
+                                tempString.add(DateOperations.getMinute(dateIterator) + "");
+                                tempDouble.add(new BigDecimal(String.format("%02d", DateOperations.getMonth(dateIterator)) + "." + String.format("%02d", DateOperations.getDay(dateIterator)) + String.format("%02d", DateOperations.getHour(dateIterator)) + String.format("%02d", DateOperations.getMinute(dateIterator))));
+                                dateIterator = DateOperations.addMinute(dateIterator, 1);
+                            }
+                        } else if (postFix.equals("horas")) {
+                            dateIterator = DateOperations.subHour(dateIterator, number - 1);
+                            for (int i = 0; i < number - 1; i++) {
+                                tempString.add(DateOperations.getHour(dateIterator) + ":00");
+                                tempDouble.add(new BigDecimal(String.format("%02d", DateOperations.getMonth(dateIterator)) + "." + String.format("%02d", DateOperations.getDay(dateIterator)) + String.format("%02d", DateOperations.getHour(dateIterator))));
+                                dateIterator = DateOperations.addHour(dateIterator, 1);
+                            }
+                        } else if (postFix.equals("días")) {
+                            dateIterator = DateOperations.subDay(dateIterator, number - 1);
+                            for (int i = 0; i < number - 1; i++) {
+                                tempString.add(DateOperations.getDay(dateIterator) + " día");
+                                tempDouble.add(new BigDecimal(String.format("%02d", DateOperations.getMonth(dateIterator)) + "." + String.format("%02d", DateOperations.getDay(dateIterator))));
+                                dateIterator = DateOperations.addDay(dateIterator, 1);
+                            }
+                        } else if (postFix.equals("mes")) {//Checar caso especial
+
+                        } else if (postFix.equals("meses")) {
+                            dateIterator = DateOperations.subMonth(dateIterator, number - 1);
+                            for (int i = 0; i < number - 1; i++) {
+                                tempString.add(DateOperations.getMonth(dateIterator) + " Mes");
+                                tempDouble.add(new BigDecimal(String.format("%02d", DateOperations.getMonth(dateIterator))));
+                                dateIterator = DateOperations.addMonth(dateIterator, 1);
+                            }
+                        }
+
                         for (int i = 0; i < number - 1; i++) {
-                            multiRendererWet1.addXTextLabel(i + 1, tempInt.get(i) + " ");
-
-                        }*/
-
+                            multiRendererWet1.addXTextLabel(tempDouble.get(i).doubleValue(), tempString.get(i));
+                            multiRendererWet2.addXTextLabel(tempDouble.get(i).doubleValue(), tempString.get(i));
+                            multiRendererWet3.addXTextLabel(tempDouble.get(i).doubleValue(), tempString.get(i));
+                            multiRendererPh.addXTextLabel(tempDouble.get(i).doubleValue(), tempString.get(i));
+                        }
 
                         GraphicalView chartWet1 = ChartFactory.getLineChartView(getBaseContext(), xyMultipleSeriesDatasetWet1, multiRendererWet1);
                         graphWet1.addView(chartWet1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 500));
-
                         GraphicalView chartWet2 = ChartFactory.getLineChartView(getBaseContext(), xyMultipleSeriesDatasetWet2, multiRendererWet2);
                         graphWet2.addView(chartWet2, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 500));
-
                         GraphicalView chartWet3 = ChartFactory.getLineChartView(getBaseContext(), xyMultipleSeriesDatasetWet3, multiRendererWet3);
                         graphWet3.addView(chartWet3, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 500));
-
                         GraphicalView chartTemp = ChartFactory.getLineChartView(getBaseContext(), xyMultipleSeriesDatasetPh, multiRendererPh);
                         graphPh.addView(chartTemp, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 500));
 
-
                     } else {
-                        if(json.equals("Error"))
-                        Toast.makeText(context, "Hubo algun problema con la petición al servidor", Toast.LENGTH_SHORT).show();
-                        if(json.equals(""))
+                        if (json.equals("Error"))
+                            Toast.makeText(context, "Hubo algun problema con la petición al servidor", Toast.LENGTH_SHORT).show();
+                        if (json.equals(""))
                             Toast.makeText(context, "Hubo algun problema con los datos", Toast.LENGTH_SHORT).show();
                     }
 
@@ -348,8 +364,10 @@ public class Main3Activity extends AppCompatActivity {
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 }
-            }else{
-                Toast.makeText(context, "Hubo algun error con el spinner", Toast.LENGTH_SHORT).show();
+            } else {
+                //Cuando se abre por primera vez
+                //Toast.makeText(context, "Hubo algun error con el spinner", Toast.LENGTH_SHORT).show();
+
             }
         }
 
