@@ -1,54 +1,47 @@
 package com.desarollo.luisvillalobos.gardenkit.View;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DateOperations;
-import com.desarollo.luisvillalobos.gardenkit.Controller.HTTPGetRequest;
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
-import com.desarollo.luisvillalobos.gardenkit.Model.Device;
+import com.desarollo.luisvillalobos.gardenkit.Model.Data;
 import com.desarollo.luisvillalobos.gardenkit.R;
+import com.desarollo.luisvillalobos.gardenkit.Controller.VolleyDataLoad;
 
-import org.achartengine.ChartFactory;
-import org.achartengine.GraphicalView;
-import org.achartengine.chart.PointStyle;
-import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.renderer.XYSeriesRenderer;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.lang.reflect.Array;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
- * Dispisitivo 1: test_prueba@spikedev.spikedev;
+ * Dispisitivo 1: test_prueba@spikedev.spikedev
  * ApiKey 1: cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51
  * <p>
  * Dispositivo 2: Humedad_PH@mariohlh.mariohlh
@@ -58,19 +51,34 @@ import java.util.concurrent.ExecutionException;
 public class Main3Activity extends AppCompatActivity {
 
     protected ImageButton imgBtnBack;
-    protected Spinner spnUpdateTime;
     protected LinearLayout graphPh;
     protected LinearLayout graphWet1;
     protected LinearLayout graphWet2;
     protected LinearLayout graphWet3;
 
+    protected EditText txtChooseDate;
+    protected EditText txtNowDate;
+
     protected Context context;
+
+    private static final String JSON_URL = "http://api.carriots.com/streams/?device=";
+    private static final String DEVICE = "test_prueba@spikedev.spikedev";
+
+    private static final String API = "carriots.apikey";
+    private static final String API_KEY = "cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51";
+
+    Calendar myCalendar;
+    String dateFormat;
+    DatePickerDialog.OnDateSetListener date;
+    SimpleDateFormat sdf;
+
+    public List<Data> dataList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
-        context = getBaseContext();
+        context = this;
 
         //Configuración de Activity
         SetUpActivity.hiderActionBar(this);
@@ -79,45 +87,82 @@ public class Main3Activity extends AppCompatActivity {
 
         //Instanciando los Views
         imgBtnBack = (ImageButton) findViewById(R.id.btnBack);
-        spnUpdateTime = (Spinner) findViewById(R.id.spnUpdateTime);
+        txtChooseDate = (EditText) findViewById(R.id.txtChooseDate);
+        txtNowDate = (EditText) findViewById(R.id.txtNowDate);
+
         graphPh = (LinearLayout) findViewById(R.id.graphPh);
         graphWet1 = (LinearLayout) findViewById(R.id.graphWet1);
         graphWet2 = (LinearLayout) findViewById(R.id.graphWet2);
         graphWet3 = (LinearLayout) findViewById(R.id.graphWet3);
 
-        //Configurando el spinner
-        String[] itemChoose = {"15 minutos", "30 minutos", "45 minutos", "2 horas", "5 horas", "12 horas", "24 horas", "3 días", "7 días",/* "14 días", "30 días","3 meses", "14 días", "4 mes",*/ "Selecciona un periodo"};
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, itemChoose) {
-            @Override
-            public int getCount() {
-                // don't display last item. It is used as hint.
-                int count = super.getCount();
-                return count > 0 ? count - 1 : count;
-            }
+        //Configuración de la fecha
+        myCalendar = Calendar.getInstance();
+        dateFormat = "dd-MM-yyyy";
+        sdf = new SimpleDateFormat(dateFormat, Locale.getDefault());
+        String dateString = sdf.format(myCalendar.getTime());
+        txtNowDate.setText(dateString);
 
-            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+        // set calendar date and update editDate
+        date = new DatePickerDialog.OnDateSetListener() {
             @Override
-            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView lbl = (TextView) view;
-                lbl.setBackgroundColor(Color.WHITE);
-                lbl.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-                lbl.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
-                lbl.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-                lbl.setGravity(Gravity.CENTER);
-                return view;
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, monthOfYear);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateDate();
             }
-
         };
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnUpdateTime.setAdapter(adapter);
-        spnUpdateTime.setSelection(adapter.getCount());
-        spnUpdateTime.setOnItemSelectedListener(new UpdateTimeSpn());
 
         //Configurando las views
         imgBtnBack.setOnClickListener(new BackImgBtnClick());
+        txtChooseDate.setOnClickListener(new ChooseDateTxt());
     }
 
+    class ChooseDateTxt implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            DatePickerDialog dpd = new DatePickerDialog(context, date,
+                    myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                    myCalendar.get(Calendar.DAY_OF_MONTH));
+            dpd.getDatePicker().setMaxDate(myCalendar.getTime().getTime());
+            dpd.show();
+        }
+    }
+
+    private void updateDate() {
+        txtChooseDate.setText(sdf.format(myCalendar.getTime()));
+        VolleyDataLoad.loadByPastDate(context,myCalendar.getTime());
+        for (int i = 0; i < VolleyDataLoad.dataList.size(); i++) {
+            Log.v("JSON",VolleyDataLoad.dataList.toString());
+        }
+
+
+    }
+
+    class BackImgBtnClick implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(intent);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    /*
     class UpdateTimeSpn implements AdapterView.OnItemSelectedListener {
 
         @Override
@@ -177,7 +222,7 @@ public class Main3Activity extends AppCompatActivity {
                             String[] columTokens = rowTokens[i].split(colum);
                             for (int j = 0; j < columTokens.length; j++) {
                                 table[i][j] = columTokens[j];
-                                //Log.v("Tabla", table[i][j] + " i=" + i + " j=" + j);
+                                Log.v("Tabla", table[i][j] + " i=" + i + " j=" + j);
                             }
                         }
 
@@ -192,18 +237,25 @@ public class Main3Activity extends AppCompatActivity {
                         int[] arrayWet1 = new int[table.length];
                         int[] arrayWet2 = new int[table.length];
                         int[] arrayWet3 = new int[table.length];
+                        int[] arrayWet4 = new int[table.length];
+                        int[] arrayWet5 = new int[table.length];
                         double[] arrayPh = new double[table.length];
+                        double[] arrayH2o = new double[table.length];
+                        int[] arrayV = new int[table.length];
+
                         for (int i = 0; i < table.length; i++) {
                             arrayWet1[i] = Integer.parseInt(table[i][1]);
                             arrayWet2[i] = Integer.parseInt(table[i][2]);
                             arrayWet3[i] = Integer.parseInt(table[i][3]);
-                            arrayPh[i] = Double.parseDouble(table[i][4]);
+                            arrayWet4[i] = Integer.parseInt(table[i][4]);
+                            arrayWet5[i] = Integer.parseInt(table[i][5]);
+                            arrayPh[i] = Double.parseDouble(table[i][6]);
+                            arrayH2o[i] = Double.parseDouble(table[i][7]);
+                            arrayV[i] = Integer.parseInt(table[i][8]);
                         }
 
                         graphWet1.removeAllViews();
-                        graphWet2.removeAllViews();
-                        graphWet3.removeAllViews();
-                        graphPh.removeAllViews();
+
 
                         BigDecimal bd[] = new BigDecimal[table.length];
                         for (int i = 0; i < table.length; i++) {
@@ -213,30 +265,59 @@ public class Main3Activity extends AppCompatActivity {
                         XYSeries expenseSeriesWet1 = new XYSeries("Humedad 1");
                         XYSeries expenseSeriesWet2 = new XYSeries("Humedad 2");
                         XYSeries expenseSeriesWet3 = new XYSeries("Humedad 3");
-                        XYSeries expenseSeriesPh = new XYSeries("PH");
+                        XYSeries expenseSeriesWet4 = new XYSeries("Humedad 4");
+                        XYSeries expenseSeriesWet5 = new XYSeries("Humedad 5");
+
 
                         for (int i = 0; i < bd.length; i++) {
                             expenseSeriesWet1.add(bd[i].doubleValue(), arrayWet1[i]);
                             expenseSeriesWet2.add(bd[i].doubleValue(), arrayWet2[i]);
                             expenseSeriesWet3.add(bd[i].doubleValue(), arrayWet3[i]);
-                            expenseSeriesPh.add(bd[i].doubleValue(), arrayPh[i]);
+                            expenseSeriesWet4.add(bd[i].doubleValue(), arrayWet4[i]);
+                            expenseSeriesWet5.add(bd[i].doubleValue(), arrayWet5[i]);
                         }
 
                         XYMultipleSeriesDataset xyMultipleSeriesDatasetWet1 = new XYMultipleSeriesDataset();
                         xyMultipleSeriesDatasetWet1.addSeries(expenseSeriesWet1);
-                        XYMultipleSeriesDataset xyMultipleSeriesDatasetWet2 = new XYMultipleSeriesDataset();
-                        xyMultipleSeriesDatasetWet2.addSeries(expenseSeriesWet2);
-                        XYMultipleSeriesDataset xyMultipleSeriesDatasetWet3 = new XYMultipleSeriesDataset();
-                        xyMultipleSeriesDatasetWet3.addSeries(expenseSeriesWet3);
-                        XYMultipleSeriesDataset xyMultipleSeriesDatasetPh = new XYMultipleSeriesDataset();
-                        xyMultipleSeriesDatasetPh.addSeries(expenseSeriesPh);
+                        xyMultipleSeriesDatasetWet1.addSeries(expenseSeriesWet2);
+                        xyMultipleSeriesDatasetWet1.addSeries(expenseSeriesWet3);
+                        xyMultipleSeriesDatasetWet1.addSeries(expenseSeriesWet4);
+                        xyMultipleSeriesDatasetWet1.addSeries(expenseSeriesWet5);
 
-                        XYSeriesRenderer renderer = new XYSeriesRenderer();
-                        renderer.setColor(Color.RED);
-                        renderer.setPointStyle(PointStyle.CIRCLE);
-                        renderer.setFillPoints(true);
-                        renderer.setLineWidth(3);
-                        renderer.setDisplayChartValues(true);
+                        XYSeriesRenderer renderer1 = new XYSeriesRenderer();
+                        renderer1.setColor(Color.RED);
+                        renderer1.setPointStyle(PointStyle.CIRCLE);
+                        renderer1.setFillPoints(true);
+                        renderer1.setLineWidth(3);
+                        renderer1.setDisplayChartValues(true);
+
+                        XYSeriesRenderer renderer2 = new XYSeriesRenderer();
+                        renderer2.setColor(Color.BLUE);
+                        renderer2.setPointStyle(PointStyle.CIRCLE);
+                        renderer2.setFillPoints(true);
+                        renderer2.setLineWidth(3);
+                        renderer2.setDisplayChartValues(true);
+
+                        XYSeriesRenderer renderer3 = new XYSeriesRenderer();
+                        renderer3.setColor(Color.GREEN);
+                        renderer3.setPointStyle(PointStyle.CIRCLE);
+                        renderer3.setFillPoints(true);
+                        renderer3.setLineWidth(3);
+                        renderer3.setDisplayChartValues(true);
+
+                        XYSeriesRenderer renderer4 = new XYSeriesRenderer();
+                        renderer4.setColor(Color.DKGRAY);
+                        renderer4.setPointStyle(PointStyle.CIRCLE);
+                        renderer4.setFillPoints(true);
+                        renderer4.setLineWidth(3);
+                        renderer4.setDisplayChartValues(true);
+
+                        XYSeriesRenderer renderer5 = new XYSeriesRenderer();
+                        renderer5.setColor(Color.MAGENTA);
+                        renderer5.setPointStyle(PointStyle.CIRCLE);
+                        renderer5.setFillPoints(true);
+                        renderer5.setLineWidth(3);
+                        renderer5.setDisplayChartValues(true);
 
                         XYMultipleSeriesRenderer multiRendererWet1 = new XYMultipleSeriesRenderer();
                         multiRendererWet1.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00));
@@ -244,61 +325,17 @@ public class Main3Activity extends AppCompatActivity {
                         multiRendererWet1.setLabelsColor(Color.BLACK);
                         multiRendererWet1.setXLabelsColor(Color.RED);
                         multiRendererWet1.setXLabels(0);
-                        multiRendererWet1.setChartTitle("Grafica de Humedad 1");
+                        multiRendererWet1.setChartTitle("Grafica de Humedad");
                         multiRendererWet1.setXTitle("Tiempo");
                         multiRendererWet1.setYTitle("°C");
                         multiRendererWet1.setShowGrid(true); // we show the grid
                         multiRendererWet1.setShowGrid(true); // we show the grid
-                        multiRendererWet1.addSeriesRenderer(renderer);
+                        multiRendererWet1.addSeriesRenderer(renderer1);
+                        multiRendererWet1.addSeriesRenderer(renderer2);
+                        multiRendererWet1.addSeriesRenderer(renderer3);
+                        multiRendererWet1.addSeriesRenderer(renderer4);
+                        multiRendererWet1.addSeriesRenderer(renderer5);
                         multiRendererWet1.setZoomButtonsVisible(true);
-
-                        XYMultipleSeriesRenderer multiRendererWet2 = new XYMultipleSeriesRenderer();
-                        multiRendererWet2.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00));
-                        multiRendererWet2.setYLabelsColor(0, Color.RED);
-                        multiRendererWet2.setLabelsColor(Color.BLACK);
-                        multiRendererWet2.setXLabelsColor(Color.RED);
-                        multiRendererWet2.setXLabels(0);
-                        multiRendererWet2.setChartTitle("Grafica de Humedad 2");
-                        multiRendererWet2.setXTitle("Tiempo");
-                        multiRendererWet2.setYTitle("°C");
-                        multiRendererWet2.setShowGrid(true); // we show the grid
-                        //multiRendererWet2.setPanEnabled(false, false);
-                        //multiRendererWet2.setZoomEnabled(false, false);
-                        multiRendererWet2.setShowGrid(true); // we show the grid
-                        multiRendererWet2.addSeriesRenderer(renderer);
-                        multiRendererWet2.setZoomButtonsVisible(true);
-
-                        XYMultipleSeriesRenderer multiRendererWet3 = new XYMultipleSeriesRenderer();
-                        multiRendererWet3.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00));
-                        multiRendererWet3.setYLabelsColor(0, Color.RED);
-                        multiRendererWet3.setLabelsColor(Color.BLACK);
-                        multiRendererWet3.setXLabelsColor(Color.RED);
-                        multiRendererWet3.setXLabels(0);
-                        multiRendererWet3.setChartTitle("Grafica de Humedad 3");
-                        multiRendererWet3.setXTitle("Tiempo");
-                        multiRendererWet3.setYTitle("°C");
-                        multiRendererWet3.setShowGrid(true); // we show the grid
-                        //multiRendererWet3.setPanEnabled(false, false);
-                        //multiRendererWet3.setZoomEnabled(false, false);
-                        multiRendererWet3.setShowGrid(true); // we show the grid
-                        multiRendererWet3.addSeriesRenderer(renderer);
-                        multiRendererWet3.setZoomButtonsVisible(true);
-
-                        XYMultipleSeriesRenderer multiRendererPh = new XYMultipleSeriesRenderer();
-                        multiRendererPh.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00));
-                        multiRendererPh.setYLabelsColor(0, Color.RED);
-                        multiRendererPh.setLabelsColor(Color.BLACK);
-                        multiRendererPh.setXLabelsColor(Color.RED);
-                        multiRendererPh.setXLabels(0);
-                        multiRendererPh.setChartTitle("Grafica de PH");
-                        multiRendererPh.setXTitle("Tiempo");
-                        multiRendererPh.setYTitle("% de PH");
-                        multiRendererPh.setShowGrid(true); // we show the grid
-                        //multiRendererPh.setPanEnabled(false, false);
-                        //multiRendererPh.setZoomEnabled(false, false);
-                        multiRendererPh.setShowGrid(true); // we show the grid
-                        multiRendererPh.addSeriesRenderer(renderer);
-                        multiRendererPh.setZoomButtonsVisible(true);
 
                         ArrayList<String> tempString = new ArrayList<String>();
                         ArrayList<BigDecimal> tempDouble = new ArrayList<BigDecimal>();
@@ -336,21 +373,14 @@ public class Main3Activity extends AppCompatActivity {
                             }
                         }
 
-                        for (int i = 0; i < number - 1; i++) {
-                            multiRendererWet1.addXTextLabel(tempDouble.get(i).doubleValue(), tempString.get(i));
-                            multiRendererWet2.addXTextLabel(tempDouble.get(i).doubleValue(), tempString.get(i));
-                            multiRendererWet3.addXTextLabel(tempDouble.get(i).doubleValue(), tempString.get(i));
-                            multiRendererPh.addXTextLabel(tempDouble.get(i).doubleValue(), tempString.get(i));
+                        for (int i = 0; i < number -1; i++) {
+                            multiRendererWet1.addXTextLabel(i, tempString.get(i));
+
                         }
 
                         GraphicalView chartWet1 = ChartFactory.getLineChartView(getBaseContext(), xyMultipleSeriesDatasetWet1, multiRendererWet1);
                         graphWet1.addView(chartWet1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 500));
-                        GraphicalView chartWet2 = ChartFactory.getLineChartView(getBaseContext(), xyMultipleSeriesDatasetWet2, multiRendererWet2);
-                        graphWet2.addView(chartWet2, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 500));
-                        GraphicalView chartWet3 = ChartFactory.getLineChartView(getBaseContext(), xyMultipleSeriesDatasetWet3, multiRendererWet3);
-                        graphWet3.addView(chartWet3, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 500));
-                        GraphicalView chartTemp = ChartFactory.getLineChartView(getBaseContext(), xyMultipleSeriesDatasetPh, multiRendererPh);
-                        graphPh.addView(chartTemp, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 500));
+
 
                     } else {
                         if (json.equals("Error"))
@@ -377,27 +407,5 @@ public class Main3Activity extends AppCompatActivity {
         }
 
     }
-
-    class BackImgBtnClick implements View.OnClickListener {
-
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(context, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);
-        }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Intent intent = new Intent(context, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+     */
 }

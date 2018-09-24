@@ -57,13 +57,24 @@
                 android:layout_height="wrap_content"
                 android:text="Periodo: " />
 
-            <Spinner
-                android:id="@+id/spnUpdateTime"
-                android:layout_width="200dp"
-                android:layout_height="match_parent"
-                android:background="@drawable/spn_shape"
-                android:textAlignment="center" />
+            <EditText
+                android:id="@+id/txtChooseDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Escoge la fecha"
+                android:textAlignment="center"
+                android:focusable="false"
+                android:inputType="date"/>
 
+            <EditText
+                android:id="@+id/txtNowDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Hoy"
+                android:textAlignment="center"
+                android:enabled="false"
+                android:focusable="false"
+                android:inputType="date"/>
 
         </LinearLayout>
 

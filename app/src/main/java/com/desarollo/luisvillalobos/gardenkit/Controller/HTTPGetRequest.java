@@ -139,64 +139,97 @@ public class HTTPGetRequest extends AsyncTask<String, Void, String> {
         return sb.toString();
     }
 
-    private void AsyncTaskErrone0() {
-        /*
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                URL carriotEndpoint;
-                try {
-                    //carriotEndpoint = new URL("https://api.carriots.com/streams/?device=test_prueba@spikedev.spikedev");
-                    carriotEndpoint = new URL("https://api.carriots.com/streams/?device=" + device + "");
-                    HttpsURLConnection myConnection = (HttpsURLConnection) carriotEndpoint.openConnection();
-                    myConnection.setRequestMethod("GET");
-                    //myConnection.setDoOutput(false);
-                    //myConnection.setRequestProperty("carriots.apikey", "cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51");
-                    myConnection.setRequestProperty("carriots.apikey", apiKey);
 
-                    //Log.d("Codigo: ", String.valueOf(myConnection.getResponseCode()));
-                    if (myConnection.getResponseCode() == 200) {
-                        InputStream responseBody = new BufferedInputStream(myConnection.getInputStream());
-                        //InputStreamReader responseBodyReader = new InputStreamReader(responseBody, "UTF-8");
-                        String json = convertStreamToString(responseBody);
-                        JSONObject jsonObject = new JSONObject(json);
-                        JSONArray results = jsonObject.getJSONArray("result");
+    /*
+    @Override
+    protected String doInBackground(String... strings) {
+        String url_request = strings[0];
+        String device_request = strings[1];
+        String apiKey_request = strings[2];
+        String now_request = strings[3];
+        String past_resquest = strings[4];
 
-                        for (int i = 0; i < results.length(); i++) {
-                            JSONObject temp = results.getJSONObject(i);
-                            String id = temp.getString("_id");
-                            String protocol = temp.getString("protocol");
-                            long at = temp.getLong("at");
-                            Date tempD = new Date(at);
-                            String device = temp.getString("device");
-                            JSONObject data = temp.getJSONObject("data");
-                            Log.v("Works", "Date= " + new Date(at));
-                            for (int j = 0; j < data.names().length(); j++) {
-                                Log.v("Works", "Key= " + data.names().getString(j) + " Value= " + data.get(data.names().getString(j)));
-                            }
+        HttpURLConnection conn = null;
+        InputStream responseBody = null;
 
-                            String t = temp.getString("_t");
-                            String developer = temp.getString("id_developer");
-                            double created = temp.getDouble("created_at");
-                            String owner = temp.getString("owner");
+        try {
+            //Create a URL object holding our url
+            URL url = new URL(url_request + device_request);
+            //Create a connection
+            conn = (HttpURLConnection) url.openConnection();
+            //Set methods and timeouts
+            conn.setRequestMethod(REQUEST_METHOD);
+            conn.setReadTimeout(READ_TIMEOUT);
+            conn.setConnectTimeout(CONNECTION_TIMEOUT);
+            conn.setRequestProperty("carriots.apikey", apiKey_request);
+            //Connect to our url
+            conn.connect();
+            if (conn.getResponseCode() == 200) {
+                //Create a new InputStream
+                responseBody = new BufferedInputStream(conn.getInputStream());
+                //Create my string with contains my JSON and my object JSON
+                String json = convertStreamToString(responseBody);
+                JSONObject jsonObject = new JSONObject(json);
+                JSONArray results = jsonObject.getJSONArray("result");
+                //Create my StringBuilder for concatenate
+                StringBuilder result = new StringBuilder();
+
+                for (int i = 0; i < results.length(); i++) {
+                    //Handles the part of the JSON result
+                    JSONObject aux = results.getJSONObject(i);
+                    //Extra Info
+                    String id = aux.getString("_id");
+                    String protocol = aux.getString("protocol");
+                    String device = aux.getString("device");
+                    String t = aux.getString("_t");
+                    String developer = aux.getString("id_developer");
+                    long created = aux.getLong("created_at");
+                    String owner = aux.getString("owner");
+                    //Important info
+                    long at = aux.getLong("at");
+                    Calendar calendar = Calendar.getInstance();
+                    //A Unix timestamp is a number of seconds since 01-01-1970 00:00:00 GMT. Java measures time in milliseconds since 01-01-1970 00:00:00 GMT. You need to multiply the Unix timestamp by 1000:
+                    calendar.setTimeInMillis(at * 1000L);
+                    Date temp = calendar.getTime();
+                    Date now = new Date(now_request);
+                    Date past = new Date(past_resquest);
+
+                    //Handles the part of the JSON data
+                    JSONObject data = aux.getJSONObject("data");
+
+                    if (temp.before(now) && temp.after(past)) {
+                        result.append(temp.toString() + ",");
+                        for (int j = 0; j < data.names().length(); j++) {
+                            if (j != data.names().length() - 1)
+                                result.append(String.valueOf(data.get(data.names().getString(j))) + ",");
+                            else
+                                result.append(String.valueOf(data.get(data.names().getString(j))));
                         }
-                    } else {
-                        // Error handling code goes here
-                        Log.e("Error: ", "Fallo");
+                        result.append("#");
                     }
-
-                } catch (MalformedURLException e) {
-                    Log.e(TAG, "MalformedURLException: " + e.getMessage());
-                } catch (IOException e) {
-                    Log.e(TAG, "IOException: " + e.getMessage());
-                } catch (Exception e) {
-                    Log.e(TAG, "Exception: " + e.getMessage());
                 }
-
+                return result.toString();
+            } else {
+                return "Error";
             }
-        });
-        */
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Error";
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "Error";
+        } finally {
+            //Close our InputStream
+            if (responseBody != null && conn != null) {
+                try {
+                    responseBody.close();
+                    conn.disconnect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
-
+     */
 
 }
