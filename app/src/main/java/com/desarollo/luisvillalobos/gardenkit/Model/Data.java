@@ -1,7 +1,7 @@
 package com.desarollo.luisvillalobos.gardenkit.Model;
 
 public class Data {
-    private int wet1,wet2,wet3,wet4,wet5;
+    private int wet1, wet2, wet3, wet4, wet5;
     private double ph;
 
     public Data(int wet1, int wet2, int wet3, int wet4, int wet5, double ph) {

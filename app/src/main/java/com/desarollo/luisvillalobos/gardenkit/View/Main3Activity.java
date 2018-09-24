@@ -51,10 +51,9 @@ import java.util.Map;
 public class Main3Activity extends AppCompatActivity {
 
     protected ImageButton imgBtnBack;
+
     protected LinearLayout graphPh;
-    protected LinearLayout graphWet1;
-    protected LinearLayout graphWet2;
-    protected LinearLayout graphWet3;
+    protected LinearLayout graphWet;
 
     protected EditText txtChooseDate;
     protected EditText txtNowDate;
@@ -62,15 +61,12 @@ public class Main3Activity extends AppCompatActivity {
     protected Context context;
 
     private static final String JSON_URL = "http://api.carriots.com/streams/?device=";
-    private static final String DEVICE = "test_prueba@spikedev.spikedev";
-
     private static final String API = "carriots.apikey";
-    private static final String API_KEY = "cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51";
 
-    Calendar myCalendar;
-    String dateFormat;
-    DatePickerDialog.OnDateSetListener date;
-    SimpleDateFormat sdf;
+    protected Calendar myCalendar;
+    protected String dateFormat;
+    protected DatePickerDialog.OnDateSetListener date;
+    protected SimpleDateFormat sdf;
 
     public List<Data> dataList;
 
@@ -91,9 +87,7 @@ public class Main3Activity extends AppCompatActivity {
         txtNowDate = (EditText) findViewById(R.id.txtNowDate);
 
         graphPh = (LinearLayout) findViewById(R.id.graphPh);
-        graphWet1 = (LinearLayout) findViewById(R.id.graphWet1);
-        graphWet2 = (LinearLayout) findViewById(R.id.graphWet2);
-        graphWet3 = (LinearLayout) findViewById(R.id.graphWet3);
+        graphWet = (LinearLayout) findViewById(R.id.graphWet);
 
         //Configuración de la fecha
         myCalendar = Calendar.getInstance();
@@ -131,9 +125,9 @@ public class Main3Activity extends AppCompatActivity {
 
     private void updateDate() {
         txtChooseDate.setText(sdf.format(myCalendar.getTime()));
-        VolleyDataLoad.loadByPastDate(context,myCalendar.getTime());
+        VolleyDataLoad.loadByPastDate(context, myCalendar.getTime());
         for (int i = 0; i < VolleyDataLoad.dataList.size(); i++) {
-            Log.v("JSON",VolleyDataLoad.dataList.toString());
+            Log.v("JSON", VolleyDataLoad.dataList.toString());
         }
 
 

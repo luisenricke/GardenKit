@@ -79,7 +79,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/graphWet1"
+            android:id="@+id/graphWet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -87,23 +87,7 @@
             android:layout_marginRight="@dimen/horizontal"
             android:orientation="vertical" />
 
-        <LinearLayout
-            android:id="@+id/graphWet2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/horizontal"
-            android:layout_marginRight="@dimen/horizontal"
-            android:orientation="vertical" />
 
-        <LinearLayout
-            android:id="@+id/graphWet3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/horizontal"
-            android:layout_marginRight="@dimen/horizontal"
-            android:orientation="vertical" />
 
         <LinearLayout
             android:id="@+id/graphPh"
