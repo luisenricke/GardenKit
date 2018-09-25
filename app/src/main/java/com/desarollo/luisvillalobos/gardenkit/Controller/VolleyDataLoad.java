@@ -26,9 +26,12 @@ import java.util.Map;
 
 public class VolleyDataLoad {
 
-    private static final String JSON_URL = "http://api.carriots.com/streams/?device=";
-    private static final String DEVICE = "test_prueba@spikedev.spikedev";
-
+    private static final String JSON_URL = "http://api.carriots.com/streams/?";
+    private static final String DEVICE = "device=";
+    private static final String AT_FROM = "&at_from="; // sub second
+    private static final String AT_TO = "&at_to="; // add second
+    private static final String SORT = "&at_to=";
+    private static final String ORDER = "&order=";// -1 HighToLow  +1 LowToHigh
     private static final String API = "carriots.apikey";
     private static final String API_KEY = "cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51";
 

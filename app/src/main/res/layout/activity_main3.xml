@@ -64,7 +64,7 @@
                 android:hint="Escoge la fecha"
                 android:textAlignment="center"
                 android:focusable="false"
-                android:inputType="date"/>
+                android:inputType="text"/>
 
             <EditText
                 android:id="@+id/txtNowDate"
@@ -74,7 +74,7 @@
                 android:textAlignment="center"
                 android:enabled="false"
                 android:focusable="false"
-                android:inputType="date"/>
+                android:inputType="text"/>
 
         </LinearLayout>
 

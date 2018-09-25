@@ -25,12 +25,13 @@ import com.desarollo.luisvillalobos.gardenkit.Controller.DateOperations;
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Model.Data;
 import com.desarollo.luisvillalobos.gardenkit.R;
-import com.desarollo.luisvillalobos.gardenkit.Controller.VolleyDataLoad;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Dispisitivo 1: test_prueba@spikedev.spikedev
@@ -60,10 +62,19 @@ public class Main3Activity extends AppCompatActivity {
 
     protected Context context;
 
-    private static final String JSON_URL = "http://api.carriots.com/streams/?device=";
+    private static final String JSON_URL = "http://api.carriots.com/streams/?";
+    private static final String DEVICE = "device=";
+
+    private static final String AT_FROM = "&at_from="; // sub second
+    private static final String AT_TO = "&at_to="; // add second
+
+    private static final String SORT = "&sort=at";
+    private static final String ORDER = "&order=-1";// -1 HighToLow  +1 LowToHigh
     private static final String API = "carriots.apikey";
 
-    protected Calendar myCalendar;
+
+    protected Calendar myCalendarFrom;
+    protected Calendar myCalendarTo;
     protected String dateFormat;
     protected DatePickerDialog.OnDateSetListener date;
     protected SimpleDateFormat sdf;
@@ -90,19 +101,22 @@ public class Main3Activity extends AppCompatActivity {
         graphWet = (LinearLayout) findViewById(R.id.graphWet);
 
         //Configuración de la fecha
-        myCalendar = Calendar.getInstance();
+        myCalendarFrom = Calendar.getInstance();
+        myCalendarTo = Calendar.getInstance();
         dateFormat = "dd-MM-yyyy";
-        sdf = new SimpleDateFormat(dateFormat, Locale.getDefault());
-        String dateString = sdf.format(myCalendar.getTime());
+        sdf = new SimpleDateFormat(dateFormat);
+        String dateString = sdf.format(myCalendarTo.getTime());
         txtNowDate.setText(dateString);
 
         // set calendar date and update editDate
         date = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                myCalendar.set(Calendar.YEAR, year);
-                myCalendar.set(Calendar.MONTH, monthOfYear);
-                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                myCalendarFrom.set(Calendar.YEAR, year);
+                myCalendarFrom.set(Calendar.MONTH, monthOfYear);
+                myCalendarFrom.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+
                 updateDate();
             }
         };
@@ -112,25 +126,144 @@ public class Main3Activity extends AppCompatActivity {
         txtChooseDate.setOnClickListener(new ChooseDateTxt());
     }
 
+    protected void loadDataByDates(final Context context, long from, long to) {
+        //Log.v("Fechas Funcion", new Date(from).toString());
+        //Log.v("Fechas Funcion", new Date(to).toString());
+        //Log.v("Fechas Funcion", from+ " from");
+        //Log.v("Fechas Funcion", to+ " to");
+        dataList = new ArrayList<>();
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                JSON_URL + DEVICE + "test_prueba@spikedev.spikedev"
+                        + AT_FROM + 1537005600 + AT_TO + 1537704000 + SORT + ORDER,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject json = new JSONObject(response);
+                            JSONArray results = json.getJSONArray("result");
+
+                            for (int i = 0; i < results.length(); i++) {
+                                JSONObject aux = results.getJSONObject(i);
+                                JSONObject data = aux.getJSONObject("data");
+
+                                Data dataJSON = new Data(data.getInt("H1"),
+                                        data.getInt("H2"),
+                                        data.getInt("H3"),
+                                        data.getInt("H4"),
+                                        data.getInt("H5"),
+                                        data.getDouble("PH"));
+
+                                dataList.add(dataJSON);
+                            }
+
+                            for (Data i : dataList) {
+                                Log.v("Sirve", String.valueOf(i.getWet1()));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                //headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put(API, "cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51");
+                return headers;
+            }
+
+
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
+    protected void loadAllData(final Context context) {
+        dataList = new ArrayList<>();
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                JSON_URL + DEVICE + "test_prueba@spikedev.spikedev",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject json = new JSONObject(response);
+                            JSONArray results = json.getJSONArray("result");
+
+                            for (int i = 0; i < results.length(); i++) {
+                                JSONObject aux = results.getJSONObject(i);
+                                JSONObject data = aux.getJSONObject("data");
+
+                                Data dataJSON = new Data(data.getInt("H1"),
+                                        data.getInt("H2"),
+                                        data.getInt("H3"),
+                                        data.getInt("H4"),
+                                        data.getInt("H5"),
+                                        data.getDouble("PH"));
+
+                                dataList.add(dataJSON);
+                            }
+
+                            for (Data i : dataList) {
+                                Log.v("Sirve", String.valueOf(i.getWet1()));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                //headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put(API, "cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51");
+                return headers;
+            }
+
+
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
     class ChooseDateTxt implements View.OnClickListener {
         @Override
         public void onClick(View view) {
             DatePickerDialog dpd = new DatePickerDialog(context, date,
-                    myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                    myCalendar.get(Calendar.DAY_OF_MONTH));
-            dpd.getDatePicker().setMaxDate(myCalendar.getTime().getTime());
+                    myCalendarFrom.get(Calendar.YEAR), myCalendarFrom.get(Calendar.MONTH),
+                    myCalendarFrom.get(Calendar.DAY_OF_MONTH));
+            Calendar c = Calendar.getInstance();
+            dpd.getDatePicker().setMaxDate(c.getTimeInMillis());
             dpd.show();
         }
     }
 
     private void updateDate() {
-        txtChooseDate.setText(sdf.format(myCalendar.getTime()));
-        VolleyDataLoad.loadByPastDate(context, myCalendar.getTime());
-        for (int i = 0; i < VolleyDataLoad.dataList.size(); i++) {
-            Log.v("JSON", VolleyDataLoad.dataList.toString());
+        txtChooseDate.setText(sdf.format(myCalendarFrom.getTime()));
+
+        try {
+            Date from = sdf.parse(String.valueOf(txtChooseDate.getText()));
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
-
+        //Date from = sdf.parse(DateOperations.clearTime(myCalendarFrom.getTime()));
+        Date to = DateOperations.getEnd(myCalendarTo.getTime());
+        Log.v("Fechas Millies", myCalendarFrom.getTimeInMillis()+" Millies");
+        Log.v("Fechas Millies", myCalendarFrom.getTime()+" Millies");
+        Log.v("Fechas Millies", myCalendarTo.getTimeInMillis()+ " Millies");
+        loadDataByDates(this, myCalendarFrom.getTimeInMillis(), to.getTime());
     }
 
     class BackImgBtnClick implements View.OnClickListener {
