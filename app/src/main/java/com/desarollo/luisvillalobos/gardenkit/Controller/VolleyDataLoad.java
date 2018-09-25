@@ -37,7 +37,7 @@ public class VolleyDataLoad {
 
     public static List<Data> dataList;
 
-    public static void loadByPastDate(final Context context, final Date pastDate) {
+   /* public static void loadByPastDate(final Context context, final Date pastDate) {
         dataList = new ArrayList<>();
         StringRequest stringRequest = new StringRequest(Request.Method.GET, JSON_URL + DEVICE,
                 new Response.Listener<String>() {
@@ -206,5 +206,5 @@ public class VolleyDataLoad {
         };
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
-    }
+    }*/
 }

@@ -1,16 +1,28 @@
 package com.desarollo.luisvillalobos.gardenkit.Model;
 
+import java.util.Date;
+
 public class Data {
     private int wet1, wet2, wet3, wet4, wet5;
     private double ph;
+    private Date date;
 
-    public Data(int wet1, int wet2, int wet3, int wet4, int wet5, double ph) {
+    public Data(Date date, int wet1, int wet2, int wet3, int wet4, int wet5, double ph) {
+        this.date = date;
         this.wet1 = wet1;
         this.wet2 = wet2;
         this.wet3 = wet3;
         this.wet4 = wet4;
         this.wet5 = wet5;
         this.ph = ph;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public int getWet1() {
