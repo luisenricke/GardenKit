@@ -175,11 +175,6 @@ public class Main3Activity extends AppCompatActivity {
 
         Date fromDate = DateOperations.clearTime(new Date(myCalendarFrom.getTimeInMillis()));
         Date toDate = DateOperations.getEnd(new Date(myCalendarTo.getTimeInMillis()));
-        /*Log.v("Test", "past " + fromDate.getTime() / 1000L + " Millies");
-        Log.v("Test", "past " + fromDate.toString() + " Date");
-        Log.v("Test", "past " + toDate.getTime() / 1000L + " Millies");
-        Log.v("Test", "past " + toDate.toString() + " Date");
-        */
         loadDataByDates(this, fromDate.getTime() / 1000L, toDate.getTime() / 1000L);
     }
 
@@ -187,12 +182,7 @@ public class Main3Activity extends AppCompatActivity {
 
         final Date fromDate = new Date(from * 1000L);
         final Date toDate = new Date(to * 1000L);
-        /*
-        Log.v("Test", "next " + fromDate.getTime() / 1000L + " Millies");
-        Log.v("Test", "next " + fromDate.toString() + " Date");
-        Log.v("Test", "next " + toDate.getTime() / 1000L + " Millies");
-        Log.v("Test", "next " + toDate.toString() + " Date");
-        */
+
         dataList = new ArrayList<>();
 
         //Agarro el dispositivo de la base de datos
@@ -209,7 +199,7 @@ public class Main3Activity extends AppCompatActivity {
 
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                JSON_URL + DEVICE + "test_prueba@spikedev.spikedev" /*device*/
+                JSON_URL + DEVICE + device
                         + AT_FROM + from + AT_TO + to + SORT + ORDER,
                 new Response.Listener<String>() {
                     @Override
@@ -252,7 +242,6 @@ public class Main3Activity extends AppCompatActivity {
                             List<Entry> entriesV = new ArrayList<Entry>();
 
 
-
                             int i = 0;
                             for (Data data : dataList) {// turn your data into Entry objects
                                 entriesWet1.add(new Entry(i, data.getWet1()));
@@ -261,7 +250,7 @@ public class Main3Activity extends AppCompatActivity {
                                 entriesWet4.add(new Entry(i, data.getWet4()));
                                 entriesWet5.add(new Entry(i, data.getWet5()));
                                 entriesPh.add(new Entry(i, (float) data.getPh()));
-                                entriesH20.add(new Entry(i, (float)data.getH20()));
+                                entriesH20.add(new Entry(i, (float) data.getH20()));
                                 entriesV.add(new Entry(i, data.getV()));
                                 i++;
                             }
@@ -361,7 +350,7 @@ public class Main3Activity extends AppCompatActivity {
 
                             graphWet.getDescription().setText("Gráfica de Humedad");
                             graphWet.getDescription().setTextSize(10f);
-                            graphWet.setData(new LineData(dataSetWet1,dataSetWet2,dataSetWet3,dataSetWet4,dataSetWet5));
+                            graphWet.setData(new LineData(dataSetWet1, dataSetWet2, dataSetWet3, dataSetWet4, dataSetWet5));
 
                             graphPh.getDescription().setText("Gráfica de Ph");
                             graphPh.getDescription().setTextSize(10f);
@@ -435,17 +424,16 @@ public class Main3Activity extends AppCompatActivity {
                             graphWet.getAxisLeft().setDrawLimitLinesBehindData(true);
 
                             //Animation
-                            graphWet.animateX(2500,Easing.EasingOption.EaseOutSine);
+                            graphWet.animateX(2500, Easing.EasingOption.EaseOutSine);
 
-                            graphPh.animateX(2500,Easing.EasingOption.EaseOutSine);
-                            graphH20.animateX(2500,Easing.EasingOption.EaseOutSine);
-                            graphV.animateX(2500,Easing.EasingOption.EaseOutSine);
+                            graphPh.animateX(2500, Easing.EasingOption.EaseOutSine);
+                            graphH20.animateX(2500, Easing.EasingOption.EaseOutSine);
+                            graphV.animateX(2500, Easing.EasingOption.EaseOutSine);
 
                             graphWet.invalidate(); // refresh
                             graphPh.invalidate(); // refresh
                             graphH20.invalidate(); // refresh
                             graphV.invalidate(); // refresh
-
 
 
                             //Generar espacios en X de la tabla
@@ -467,14 +455,15 @@ public class Main3Activity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e("No NetWork", error.getMessage());
+                        Toast.makeText(context, "Sin conexión", Toast.LENGTH_LONG).show();
                     }
                 }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 //headers.put("Content-Type", "application/json; charset=utf-8");
-                headers.put(API, "cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51"/*apiKey*/);
+                headers.put(API, apiKey);
                 return headers;
             }
 
