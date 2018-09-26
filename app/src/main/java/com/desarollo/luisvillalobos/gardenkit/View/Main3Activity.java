@@ -4,20 +4,15 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -37,7 +32,6 @@ import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -67,9 +61,12 @@ public class Main3Activity extends AppCompatActivity {
 
     protected ImageButton imgBtnBack;
 
-    protected LinearLayout graphPh;
-
+    //protected LinearLayout graphPh;
     protected LineChart graphWet;
+    protected LineChart graphPh;
+    protected LineChart graphH20;
+    protected LineChart graphV;
+
 
     protected EditText txtChooseDate;
     protected EditText txtNowDate;
@@ -110,10 +107,29 @@ public class Main3Activity extends AppCompatActivity {
 
         //graphPh = (LinearLayout) findViewById(R.id.graphPh);
         graphWet = (LineChart) findViewById(R.id.graphWet);
+        graphPh = (LineChart) findViewById(R.id.graphPh);
+        graphH20 = (LineChart) findViewById(R.id.graphH20);
+        graphV = (LineChart) findViewById(R.id.graphV);
 
         graphWet.setNoDataTextColor(Color.RED);
         graphWet.setNoDataText("No hay datos para graficar");
+        graphWet.setDoubleTapToZoomEnabled(false);
         graphWet.invalidate();
+
+        graphPh.setNoDataTextColor(Color.RED);
+        graphPh.setNoDataText("No hay datos para graficar");
+        graphPh.setDoubleTapToZoomEnabled(false);
+        graphPh.invalidate();
+
+        graphH20.setNoDataTextColor(Color.RED);
+        graphH20.setNoDataText("No hay datos para graficar");
+        graphH20.setDoubleTapToZoomEnabled(false);
+        graphH20.invalidate();
+
+        graphV.setNoDataTextColor(Color.RED);
+        graphV.setNoDataText("No hay datos para graficar");
+        graphV.setDoubleTapToZoomEnabled(false);
+        graphV.invalidate();
 
         //Configuración de la fecha
         myCalendarFrom = Calendar.getInstance();
@@ -213,7 +229,9 @@ public class Main3Activity extends AppCompatActivity {
                                         data.getInt("H3"),
                                         data.getInt("H4"),
                                         data.getInt("H5"),
-                                        data.getDouble("PH"));
+                                        data.getDouble("PH"),
+                                        data.getDouble("H2O"),
+                                        data.getInt("V"));
 
                                 dataList.add(dataJSON);
                             }
@@ -222,12 +240,18 @@ public class Main3Activity extends AppCompatActivity {
                                 Log.v("Sirve", String.valueOf(i.getWet1()));
                             }
 
-                            //Grafica
+                            //Grafica Humedad
                             List<Entry> entriesWet1 = new ArrayList<Entry>();
                             List<Entry> entriesWet2 = new ArrayList<Entry>();
                             List<Entry> entriesWet3 = new ArrayList<Entry>();
                             List<Entry> entriesWet4 = new ArrayList<Entry>();
                             List<Entry> entriesWet5 = new ArrayList<Entry>();
+
+                            List<Entry> entriesPh = new ArrayList<Entry>();
+                            List<Entry> entriesH20 = new ArrayList<Entry>();
+                            List<Entry> entriesV = new ArrayList<Entry>();
+
+
 
                             int i = 0;
                             for (Data data : dataList) {// turn your data into Entry objects
@@ -236,6 +260,9 @@ public class Main3Activity extends AppCompatActivity {
                                 entriesWet3.add(new Entry(i, data.getWet3()));
                                 entriesWet4.add(new Entry(i, data.getWet4()));
                                 entriesWet5.add(new Entry(i, data.getWet5()));
+                                entriesPh.add(new Entry(i, (float) data.getPh()));
+                                entriesH20.add(new Entry(i, (float)data.getH20()));
+                                entriesV.add(new Entry(i, data.getV()));
                                 i++;
                             }
 
@@ -257,7 +284,6 @@ public class Main3Activity extends AppCompatActivity {
                             dataSetWet2.setCircleColor(Color.BLUE);
                             dataSetWet2.setCircleRadius(4f);
                             dataSetWet2.setDrawCircleHole(false);
-                            //dataSetWet2.setCircleHoleRadius(4f);
                             dataSetWet2.setHighLightColor(Color.BLUE);
                             dataSetWet2.setValueTextSize(8);
 
@@ -268,7 +294,6 @@ public class Main3Activity extends AppCompatActivity {
                             dataSetWet3.setCircleColor(Color.CYAN);
                             dataSetWet3.setCircleRadius(4f);
                             dataSetWet3.setDrawCircleHole(false);
-                            //dataSetWet3.setCircleHoleRadius(4f);
                             dataSetWet3.setHighLightColor(Color.CYAN);
                             dataSetWet3.setValueTextSize(8);
 
@@ -279,7 +304,6 @@ public class Main3Activity extends AppCompatActivity {
                             dataSetWet4.setCircleColor(Color.GREEN);
                             dataSetWet4.setCircleRadius(4f);
                             dataSetWet4.setDrawCircleHole(false);
-                            //dataSetWet4.setCircleHoleRadius(4f);
                             dataSetWet4.setHighLightColor(Color.GREEN);
                             dataSetWet4.setValueTextSize(8);
 
@@ -290,9 +314,38 @@ public class Main3Activity extends AppCompatActivity {
                             dataSetWet5.setCircleColor(Color.MAGENTA);
                             dataSetWet5.setCircleRadius(4f);
                             dataSetWet5.setDrawCircleHole(false);
-                            //dataSetWet5.setCircleHoleRadius(4f);
                             dataSetWet5.setHighLightColor(Color.MAGENTA);
                             dataSetWet5.setValueTextSize(8);
+
+                            LineDataSet dataSetPh = new LineDataSet(entriesPh, "Ph");
+                            dataSetPh.setColor(Color.CYAN);
+                            dataSetPh.setValueTextColor(Color.BLACK);
+                            dataSetPh.setLineWidth(2);
+                            dataSetPh.setCircleColor(Color.CYAN);
+                            dataSetPh.setCircleRadius(4f);
+                            dataSetPh.setDrawCircleHole(false);
+                            dataSetPh.setHighLightColor(Color.CYAN);
+                            dataSetPh.setValueTextSize(8);
+
+                            LineDataSet dataSetH20 = new LineDataSet(entriesH20, "Nivel de agua");
+                            dataSetH20.setColor(Color.GREEN);
+                            dataSetH20.setValueTextColor(Color.BLACK);
+                            dataSetH20.setLineWidth(2);
+                            dataSetH20.setCircleColor(Color.GREEN);
+                            dataSetH20.setCircleRadius(4f);
+                            dataSetH20.setDrawCircleHole(false);
+                            dataSetH20.setHighLightColor(Color.GREEN);
+                            dataSetH20.setValueTextSize(8);
+
+                            LineDataSet dataSetV = new LineDataSet(entriesV, "Energía electrica");
+                            dataSetV.setColor(Color.MAGENTA);
+                            dataSetV.setValueTextColor(Color.BLACK);
+                            dataSetV.setLineWidth(2);
+                            dataSetV.setCircleColor(Color.MAGENTA);
+                            dataSetV.setCircleRadius(4f);
+                            dataSetV.setDrawCircleHole(false);
+                            dataSetV.setHighLightColor(Color.MAGENTA);
+                            dataSetV.setValueTextSize(8);
 
                             /*
                             //Customizar el eje de las X
@@ -310,13 +363,53 @@ public class Main3Activity extends AppCompatActivity {
                             graphWet.getDescription().setTextSize(10f);
                             graphWet.setData(new LineData(dataSetWet1,dataSetWet2,dataSetWet3,dataSetWet4,dataSetWet5));
 
+                            graphPh.getDescription().setText("Gráfica de Ph");
+                            graphPh.getDescription().setTextSize(10f);
+                            graphPh.setData(new LineData(dataSetPh));
+
+                            graphH20.getDescription().setText("Gráfica de Nivel de Agua");
+                            graphH20.getDescription().setTextSize(10f);
+                            graphH20.setData(new LineData(dataSetH20));
+
+                            graphV.getDescription().setText("Gráfica de Energía Electrica");
+                            graphV.getDescription().setTextSize(10f);
+                            graphV.setData(new LineData(dataSetV));
+
 
                             //Custom Graphics
                             graphWet.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Set the xAxis position to bottom. Default is top
                             graphWet.getXAxis().setGranularity(1f);// minimum axis-step (interval) is 1
                             graphWet.getAxisRight().setEnabled(false);// Controlling right side of y axis
                             graphWet.getAxisLeft().setGranularity(0.1f);// Controlling left side of y axis
-                            
+
+                            graphPh.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Set the xAxis position to bottom. Default is top
+                            graphPh.getXAxis().setGranularity(1f);// minimum axis-step (interval) is 1
+                            graphPh.getAxisRight().setEnabled(false);// Controlling right side of y axis
+                            graphPh.getAxisLeft().setGranularity(0.1f);// Controlling left side of y axis
+
+                            graphH20.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Set the xAxis position to bottom. Default is top
+                            graphH20.getXAxis().setGranularity(1f);// minimum axis-step (interval) is 1
+                            graphH20.getAxisRight().setEnabled(false);// Controlling right side of y axis
+                            graphH20.getAxisLeft().setGranularity(0.1f);// Controlling left side of y axis
+
+                            graphV.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Set the xAxis position to bottom. Default is top
+                            graphV.getXAxis().setGranularity(1f);// minimum axis-step (interval) is 1
+                            graphV.getAxisRight().setEnabled(false);// Controlling right side of y axis
+                            graphV.getAxisLeft().setGranularity(1f);// Controlling left side of y axis
+
+                            //Bordes Opcional
+                            graphWet.setBorderWidth(2f);
+                            graphWet.setDrawBorders(true);
+
+                            graphPh.setBorderWidth(2f);
+                            graphPh.setDrawBorders(true);
+
+                            graphH20.setBorderWidth(2f);
+                            graphH20.setDrawBorders(true);
+
+                            graphV.setBorderWidth(2f);
+                            graphV.setDrawBorders(true);
+
                             //Limits
                             LimitLine upper_limit = new LimitLine(90, "Alto");
                             upper_limit.setLineWidth(1.5f);
@@ -344,7 +437,16 @@ public class Main3Activity extends AppCompatActivity {
                             //Animation
                             graphWet.animateX(2500,Easing.EasingOption.EaseOutSine);
 
+                            graphPh.animateX(2500,Easing.EasingOption.EaseOutSine);
+                            graphH20.animateX(2500,Easing.EasingOption.EaseOutSine);
+                            graphV.animateX(2500,Easing.EasingOption.EaseOutSine);
+
                             graphWet.invalidate(); // refresh
+                            graphPh.invalidate(); // refresh
+                            graphH20.invalidate(); // refresh
+                            graphV.invalidate(); // refresh
+
+
 
                             //Generar espacios en X de la tabla
                             if ((DateOperations.getDay(toDate) - DateOperations.getDay(fromDate) <= 5)) {
