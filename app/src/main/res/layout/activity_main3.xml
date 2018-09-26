@@ -78,6 +78,17 @@
 
         </LinearLayout>
 
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/graphWet"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/horizontal"
+            android:layout_marginRight="@dimen/horizontal"
+            android:orientation="vertical"
+            />
+        <!--
         <LinearLayout
             android:id="@+id/graphWet"
             android:layout_width="wrap_content"
@@ -86,7 +97,7 @@
             android:layout_marginLeft="@dimen/horizontal"
             android:layout_marginRight="@dimen/horizontal"
             android:orientation="vertical" />
-
+        -->
 
 
         <LinearLayout

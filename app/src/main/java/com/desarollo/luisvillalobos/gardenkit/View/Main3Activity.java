@@ -3,15 +3,21 @@ package com.desarollo.luisvillalobos.gardenkit.View;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -27,8 +33,15 @@ import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Model.Data;
 import com.desarollo.luisvillalobos.gardenkit.Model.Device;
 import com.desarollo.luisvillalobos.gardenkit.R;
+import com.github.mikephil.charting.animation.Easing;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 
-import org.achartengine.chart.LineChart;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,7 +68,8 @@ public class Main3Activity extends AppCompatActivity {
     protected ImageButton imgBtnBack;
 
     protected LinearLayout graphPh;
-    protected LinearLayout graphWet;
+
+    protected LineChart graphWet;
 
     protected EditText txtChooseDate;
     protected EditText txtNowDate;
@@ -67,9 +81,8 @@ public class Main3Activity extends AppCompatActivity {
     private static final String AT_FROM = "&at_from="; // sub second
     private static final String AT_TO = "&at_to="; // add second
     private static final String SORT = "&sort=at";
-    private static final String ORDER = "&order=-1";// -1 HighToLow  +1 LowToHigh
+    private static final String ORDER = "&order=1";// -1 HighToLow  +1 LowToHigh
     private static final String API = "carriots.apikey";
-
 
     protected Calendar myCalendarFrom;
     protected Calendar myCalendarTo;
@@ -95,8 +108,12 @@ public class Main3Activity extends AppCompatActivity {
         txtChooseDate = (EditText) findViewById(R.id.txtChooseDate);
         txtNowDate = (EditText) findViewById(R.id.txtNowDate);
 
-        graphPh = (LinearLayout) findViewById(R.id.graphPh);
-        graphWet = (LinearLayout) findViewById(R.id.graphWet);
+        //graphPh = (LinearLayout) findViewById(R.id.graphPh);
+        graphWet = (LineChart) findViewById(R.id.graphWet);
+
+        graphWet.setNoDataTextColor(Color.RED);
+        graphWet.setNoDataText("No hay datos para graficar");
+        graphWet.invalidate();
 
         //Configuración de la fecha
         myCalendarFrom = Calendar.getInstance();
@@ -206,9 +223,128 @@ public class Main3Activity extends AppCompatActivity {
                             }
 
                             //Grafica
-                            com.github.mikephil.charting.charts.LineChart x = new com.github.mikephil.charting.charts.LineChart(context);
-                            graphWet.removeAllViews();
+                            List<Entry> entriesWet1 = new ArrayList<Entry>();
+                            List<Entry> entriesWet2 = new ArrayList<Entry>();
+                            List<Entry> entriesWet3 = new ArrayList<Entry>();
+                            List<Entry> entriesWet4 = new ArrayList<Entry>();
+                            List<Entry> entriesWet5 = new ArrayList<Entry>();
 
+                            int i = 0;
+                            for (Data data : dataList) {// turn your data into Entry objects
+                                entriesWet1.add(new Entry(i, data.getWet1()));
+                                entriesWet2.add(new Entry(i, data.getWet2()));
+                                entriesWet3.add(new Entry(i, data.getWet3()));
+                                entriesWet4.add(new Entry(i, data.getWet4()));
+                                entriesWet5.add(new Entry(i, data.getWet5()));
+                                i++;
+                            }
+
+                            LineDataSet dataSetWet1 = new LineDataSet(entriesWet1, "H1");
+                            dataSetWet1.setColor(Color.YELLOW);
+                            dataSetWet1.setValueTextColor(Color.BLACK);
+                            dataSetWet1.setLineWidth(2);
+                            dataSetWet1.setCircleColor(Color.YELLOW);
+                            dataSetWet1.setCircleRadius(4f);
+                            dataSetWet1.setDrawCircleHole(false);
+                            //dataSetWet1.setCircleHoleRadius(4f);
+                            dataSetWet1.setHighLightColor(Color.YELLOW);
+                            dataSetWet1.setValueTextSize(8);
+
+                            LineDataSet dataSetWet2 = new LineDataSet(entriesWet2, "H2");
+                            dataSetWet2.setColor(Color.BLUE);
+                            dataSetWet2.setValueTextColor(Color.BLACK);
+                            dataSetWet2.setLineWidth(2);
+                            dataSetWet2.setCircleColor(Color.BLUE);
+                            dataSetWet2.setCircleRadius(4f);
+                            dataSetWet2.setDrawCircleHole(false);
+                            //dataSetWet2.setCircleHoleRadius(4f);
+                            dataSetWet2.setHighLightColor(Color.BLUE);
+                            dataSetWet2.setValueTextSize(8);
+
+                            LineDataSet dataSetWet3 = new LineDataSet(entriesWet3, "H3");
+                            dataSetWet3.setColor(Color.CYAN);
+                            dataSetWet3.setValueTextColor(Color.BLACK);
+                            dataSetWet3.setLineWidth(2);
+                            dataSetWet3.setCircleColor(Color.CYAN);
+                            dataSetWet3.setCircleRadius(4f);
+                            dataSetWet3.setDrawCircleHole(false);
+                            //dataSetWet3.setCircleHoleRadius(4f);
+                            dataSetWet3.setHighLightColor(Color.CYAN);
+                            dataSetWet3.setValueTextSize(8);
+
+                            LineDataSet dataSetWet4 = new LineDataSet(entriesWet4, "H4");
+                            dataSetWet4.setColor(Color.GREEN);
+                            dataSetWet4.setValueTextColor(Color.BLACK);
+                            dataSetWet4.setLineWidth(2);
+                            dataSetWet4.setCircleColor(Color.GREEN);
+                            dataSetWet4.setCircleRadius(4f);
+                            dataSetWet4.setDrawCircleHole(false);
+                            //dataSetWet4.setCircleHoleRadius(4f);
+                            dataSetWet4.setHighLightColor(Color.GREEN);
+                            dataSetWet4.setValueTextSize(8);
+
+                            LineDataSet dataSetWet5 = new LineDataSet(entriesWet5, "H5");
+                            dataSetWet5.setColor(Color.MAGENTA);
+                            dataSetWet5.setValueTextColor(Color.BLACK);
+                            dataSetWet5.setLineWidth(2);
+                            dataSetWet5.setCircleColor(Color.MAGENTA);
+                            dataSetWet5.setCircleRadius(4f);
+                            dataSetWet5.setDrawCircleHole(false);
+                            //dataSetWet5.setCircleHoleRadius(4f);
+                            dataSetWet5.setHighLightColor(Color.MAGENTA);
+                            dataSetWet5.setValueTextSize(8);
+
+                            /*
+                            //Customizar el eje de las X
+                            final String[] months = new String[]{"Jan", "Feb", "Mar", "Apr"};
+                            IAxisValueFormatter formatter = new IAxisValueFormatter() {
+                                @Override
+                                public String getFormattedValue(float value, AxisBase axis) {
+                                    return months[(int) value];
+                                }
+                            };
+                            graphWet.getXAxis().setValueFormatter(formatter);
+                            */
+
+                            graphWet.getDescription().setText("Gráfica de Humedad");
+                            graphWet.getDescription().setTextSize(10f);
+                            graphWet.setData(new LineData(dataSetWet1,dataSetWet2,dataSetWet3,dataSetWet4,dataSetWet5));
+
+
+                            //Custom Graphics
+                            graphWet.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Set the xAxis position to bottom. Default is top
+                            graphWet.getXAxis().setGranularity(1f);// minimum axis-step (interval) is 1
+                            graphWet.getAxisRight().setEnabled(false);// Controlling right side of y axis
+                            graphWet.getAxisLeft().setGranularity(0.1f);// Controlling left side of y axis
+                            
+                            //Limits
+                            LimitLine upper_limit = new LimitLine(90, "Alto");
+                            upper_limit.setLineWidth(1.5f);
+                            upper_limit.enableDashedLine(15f, 15f, 0f);
+                            upper_limit.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+                            upper_limit.setTextSize(8f);
+
+                            LimitLine medius_limit = new LimitLine(60f, "Mediano");
+                            medius_limit.setLineWidth(1.5f);
+                            medius_limit.enableDashedLine(15f, 15f, 0f);
+                            medius_limit.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+                            medius_limit.setTextSize(8f);
+
+                            LimitLine lower_limit = new LimitLine(40f, "Bajo");
+                            lower_limit.setLineWidth(1.5f);
+                            lower_limit.enableDashedLine(15f, 15f, 0f);
+                            lower_limit.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+                            lower_limit.setTextSize(8f);
+
+                            graphWet.getAxisLeft().addLimitLine(upper_limit);
+                            graphWet.getAxisLeft().addLimitLine(medius_limit);
+                            graphWet.getAxisLeft().addLimitLine(lower_limit);
+                            graphWet.getAxisLeft().setDrawLimitLinesBehindData(true);
+
+                            //Animation
+                            graphWet.animateX(2500,Easing.EasingOption.EaseOutSine);
+
+                            graphWet.invalidate(); // refresh
 
                             //Generar espacios en X de la tabla
                             if ((DateOperations.getDay(toDate) - DateOperations.getDay(fromDate) <= 5)) {
