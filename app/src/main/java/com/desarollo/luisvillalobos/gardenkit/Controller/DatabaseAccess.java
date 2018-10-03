@@ -77,6 +77,7 @@ public class DatabaseAccess {
         }
     }
 
+
     public Device getDevice(String _id) {
         try {
             Cursor cursor = database.rawQuery("SELECT * FROM Dispositivo WHERE _id = '" + _id + "'", null);

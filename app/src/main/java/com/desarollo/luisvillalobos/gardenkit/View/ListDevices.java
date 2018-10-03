@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,9 +23,10 @@ import com.desarollo.luisvillalobos.gardenkit.Model.Device;
 import com.desarollo.luisvillalobos.gardenkit.R;
 
 
-public class MainActivity extends AppCompatActivity {
+public class ListDevices extends AppCompatActivity {
 
-    private ImageButton imgBtnAdd;
+    //private ImageButton imgBtnAdd;
+    private FloatingActionButton imgBtnAdd;
     private ListView lvDevice;
 
     private Context context;
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.list_devices);
         context = getBaseContext();
 
         //Configuración de Activity

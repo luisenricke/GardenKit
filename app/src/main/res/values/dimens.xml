@@ -3,4 +3,8 @@
     <dimen name="horizontal">25dp</dimen>
     <dimen name="vertical">15dp</dimen>
     <dimen name="form">40dp</dimen>
+
+
+    <dimen name="listHorizontal">46dp</dimen>
+    <dimen name="listTop">20dp</dimen>
 </resources>
