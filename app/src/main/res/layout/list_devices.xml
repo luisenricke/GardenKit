@@ -16,16 +16,16 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="114dp"
         android:layout_marginRight="114dp"
+        android:contentDescription="@string/imglogo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/logov2"
-        android:contentDescription="@string/imglogo" />
+        app:srcCompat="@drawable/logov2" />
 
     <ListView
         android:id="@+id/lvDevice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
+        android:longClickable="true"
+
 
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -37,8 +37,10 @@
         android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintVertical_bias="0.0" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btnAdd"
@@ -65,6 +67,19 @@
         app:layout_constraintBottom_toTopOf="@+id/btnAdd"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@mipmap/img_back" />
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/offsesion"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@mipmap/img_closes" />
 
 
 </android.support.constraint.ConstraintLayout>

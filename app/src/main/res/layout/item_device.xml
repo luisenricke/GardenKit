@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingBottom="20dp"
+    >
     <!--
         <ImageView
             android:layout_width="wrap_content"
@@ -18,23 +20,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:padding="15dp"
         android:background="@drawable/list_custom_border"
-        android:layout_marginBottom="10dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/lblDescription"
-            android:textColor="@color/colorPrimary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="2"
             android:minLines="1"
+            android:paddingLeft="15dp"
+            android:paddingTop="15dp"
             android:text="Descripcion"
+            android:textColor="@color/colorPrimary"
             android:textSize="20sp"
             android:textStyle="bold"
             android:typeface="sans" />
-
 
 
         <TextView
@@ -43,10 +44,11 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:minLines="1"
+            android:paddingLeft="15dp"
             android:text="Dispositivo"
             android:textSize="16sp"
-            android:typeface="sans"
-            android:textStyle="italic"/>
+            android:textStyle="italic"
+            android:typeface="sans" />
 
         <TextView
             android:id="@+id/lblApiKey"
@@ -54,6 +56,7 @@
             android:layout_height="wrap_content"
             android:maxLines="2"
             android:minLines="1"
+            android:paddingLeft="15dp"
             android:text="ApiKey"
             android:textSize="8sp"
             android:textStyle="italic"
@@ -65,11 +68,14 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:minLines="1"
+            android:paddingLeft="15dp"
+            android:paddingBottom="15dp"
             android:text="Usuario"
             android:textSize="18sp"
             android:textStyle="normal"
             android:typeface="sans" />
 
     </LinearLayout>
+
 
 </LinearLayout>

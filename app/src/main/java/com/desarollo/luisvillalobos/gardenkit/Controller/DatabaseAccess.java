@@ -64,6 +64,13 @@ public class DatabaseAccess {
         return cursor;
     }
 
+    //---deletes a particular title---
+    public boolean deleteDevice(String _id) {
+        
+        //database.rawQuery("DELETE FROM Dispositivo WHERE _id = '" + _id + "'", null);
+        return database.delete("Dispositivo", "_id" + "=" + _id, null) > 0;
+    }
+
     public String getDevice(String description, String apikey, String device, String user) {
         try {
             Cursor cursor = database.rawQuery("SELECT * FROM Dispositivo WHERE description = '" + description + "' AND apiKey = '" + apikey + "' AND device = '" + device + "' AND user = '" + user + "'", null);
