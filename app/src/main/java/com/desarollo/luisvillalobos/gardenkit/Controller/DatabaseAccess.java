@@ -66,7 +66,7 @@ public class DatabaseAccess {
 
     //---deletes a particular title---
     public boolean deleteDevice(String _id) {
-        
+
         //database.rawQuery("DELETE FROM Dispositivo WHERE _id = '" + _id + "'", null);
         return database.delete("Dispositivo", "_id" + "=" + _id, null) > 0;
     }
@@ -105,6 +105,10 @@ public class DatabaseAccess {
 
     public void setDevice(String description, String apikey, String device, String user) {
 
+        /**
+         *  New Query: INSERT INTO Dispositivo (description,apiKey,device,user,fk_id)
+         * VALUES ("qwe","cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51","test_prueba@spikedev.spikedev","Jardin 2",1);
+         */
         try {
             ContentValues newRow = new ContentValues();
             newRow.put("description", description);
