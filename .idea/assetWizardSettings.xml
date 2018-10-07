@@ -20,8 +20,8 @@
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
                                       <entry key="iconShape" value="NONE" />
-                                      <entry key="imageAsset" value="$USER_HOME$/Downloads/icons8-delete-96.png" />
-                                      <entry key="outputName" value="img_closes" />
+                                      <entry key="imageAsset" value="$USER_HOME$/Downloads/power1.png" />
+                                      <entry key="outputName" value="img_power" />
                                     </map>
                                   </option>
                                 </PersistentState>

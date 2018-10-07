@@ -176,6 +176,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:srcCompat="@mipmap/ic_back" />
+        app:srcCompat="@mipmap/img_home" />
 
 </android.support.constraint.ConstraintLayout>
