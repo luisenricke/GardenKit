@@ -13,6 +13,8 @@ public class Login extends AppCompatActivity {
     private Context context;
     private DatabaseAccess databaseAccess;
 
+    //Bloquear
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +24,8 @@ public class Login extends AppCompatActivity {
         SetUpActivity.hiderActionBar(this);
         SetUpActivity.hideStatusBar(this);
         SetUpActivity.hideSoftKeyboard(this);
+        SetUpActivity.setWindowPortrait(this);
+
 
 
     }

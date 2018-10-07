@@ -1,30 +1,26 @@
 package com.desarollo.luisvillalobos.gardenkit.View;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
-import com.desarollo.luisvillalobos.gardenkit.Model.Device;
 import com.desarollo.luisvillalobos.gardenkit.R;
 
-public class Main2Activity extends AppCompatActivity {
+public class FormDevice extends AppCompatActivity {
 
+    /*
     private ImageButton imgBtnBack;
     private EditText txtDescription;
     private EditText txtApiKey;
     private EditText txtDevice;
     private EditText txtUser;
     private Button btnAdd;
+*/
+
+    private EditText x;
 
     private Context context;
     private DatabaseAccess databaseAccess;
@@ -32,7 +28,7 @@ public class Main2Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.form_device);
         context = getBaseContext();
 
         //Configuración de Activity
@@ -40,6 +36,10 @@ public class Main2Activity extends AppCompatActivity {
         SetUpActivity.hideStatusBar(this);
         SetUpActivity.hideSoftKeyboard(this);
 
+        x = (EditText) findViewById(R.id.in_apikey);
+
+
+/*
         //Instanciando los Views
         imgBtnBack = (ImageButton) findViewById(R.id.btnBack);
         txtDescription = (EditText) findViewById(R.id.txtDescription);
@@ -51,8 +51,9 @@ public class Main2Activity extends AppCompatActivity {
         //Configurando las views
         btnAdd.setOnClickListener(new AddBtnClick());
         imgBtnBack.setOnClickListener(new BackImgBtnClick());
+        */
     }
-
+/*
     class AddBtnClick implements View.OnClickListener {
 
         @Override
@@ -102,10 +103,10 @@ public class Main2Activity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            /*Intent intent = new Intent(context, ListDevices.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);*/
+            //Intent intent = new Intent(context, ListDevices.class);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            //startActivity(intent);
             Intent returnIntent = getIntent();
             returnIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             returnIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -116,4 +117,5 @@ public class Main2Activity extends AppCompatActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+    */
 }

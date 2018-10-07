@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -122,7 +121,7 @@ public class ListDevices extends AppCompatActivity {
 
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent(context, Main2Activity.class);
+            Intent intent = new Intent(context, FormDevice.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             startActivityForResult(intent, 1);
         }

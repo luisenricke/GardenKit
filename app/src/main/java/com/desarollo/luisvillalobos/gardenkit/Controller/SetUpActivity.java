@@ -1,6 +1,7 @@
 package com.desarollo.luisvillalobos.gardenkit.Controller;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -45,6 +46,15 @@ public class SetUpActivity {
      */
     public static void hideSoftKeyboard(AppCompatActivity appCompatActivity) {
         appCompatActivity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+    }
+
+    /**
+     * Set the Window as Portrait
+     *
+     * @param appCompatActivity
+     */
+    public static void setWindowPortrait(AppCompatActivity appCompatActivity){
+        appCompatActivity.setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
 
