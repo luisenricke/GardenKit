@@ -56,9 +56,9 @@ import java.util.TimeZone;
  * ApiKey: fddc93fc422beea85c5104f2d4342a48a3a007ac4e6e7a71ca85abacdf9baf95
  */
 
-public class Main3Activity extends AppCompatActivity {
+public class graphs extends AppCompatActivity {
 
-    protected ImageButton imgBtnBack;
+    //protected ImageButton imgBtnBack;
 
     //protected LinearLayout graphPh;
     protected LineChart graphWet;
@@ -91,7 +91,7 @@ public class Main3Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main3);
+        setContentView(R.layout.graphs);
         context = this;
 
         //Configuración de Activity
@@ -100,7 +100,7 @@ public class Main3Activity extends AppCompatActivity {
         SetUpActivity.hideSoftKeyboard(this);
 
         //Instanciando los Views
-        imgBtnBack = (ImageButton) findViewById(R.id.btnBack);
+        //imgBtnBack = (ImageButton) findViewById(R.id.btnBack);
         txtChooseDate = (EditText) findViewById(R.id.txtChooseDate);
         txtNowDate = (EditText) findViewById(R.id.txtNowDate);
 
@@ -152,7 +152,7 @@ public class Main3Activity extends AppCompatActivity {
         };
 
         //Configurando las views
-        imgBtnBack.setOnClickListener(new BackImgBtnClick());
+        //imgBtnBack.setOnClickListener(new BackImgBtnClick());
         txtChooseDate.setOnClickListener(new ChooseDateTxt());
     }
 

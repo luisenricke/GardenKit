@@ -109,7 +109,7 @@ public class ListDevices extends AppCompatActivity {
             TextView lblUser = view.findViewById(R.id.lblUser);
 
             String _id = databaseAccess.getDevice(lblDescription.getText().toString(), lblApikey.getText().toString(), lblDevice.getText().toString(), lblUser.getText().toString());
-            Intent intent = new Intent(context, Main3Activity.class);
+            Intent intent = new Intent(context, graphs.class);
             intent.putExtra("_id", _id);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
