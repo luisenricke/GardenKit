@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.desarollo.luisvillalobos.gardenkit.Model.Device;
+import com.desarollo.luisvillalobos.gardenkit.Model.User;
 
 public class DatabaseAccess {
 
@@ -15,6 +16,16 @@ public class DatabaseAccess {
     private SQLiteDatabase database;
     private static DatabaseAccess instance;
     private Context context;
+
+    private final String TABLE_DEVICE = "Dispositivo";
+    private final String TDEVICE_DESCRIPTION = "description";
+    private final String TDEVICE_APIKEY = "apiKey";
+    private final String TDEVICE_DEVICE = "device";
+    private final String TDEVICE_USER = "user";
+
+    private final String TABLE_USER = "Usuario";
+    private final String TU_USER = "username";
+    private final String TU_PASSWORD = "password";
 
     /**
      * Private constructor to aboid object creation from outside classes.
@@ -58,17 +69,10 @@ public class DatabaseAccess {
 
     public Cursor getDevices() {
         Log.d("prueba", "");
-        Cursor cursor = database.rawQuery("SELECT * FROM Dispositivo" + ";", null);
+        Cursor cursor = database.rawQuery("SELECT * FROM " + TABLE_DEVICE + ";", null);
         Log.d("prueba", cursor.toString());
         cursor.moveToFirst();
         return cursor;
-    }
-
-    //---deletes a particular title---
-    public boolean deleteDevice(String _id) {
-
-        //database.rawQuery("DELETE FROM Dispositivo WHERE _id = '" + _id + "'", null);
-        return database.delete("Dispositivo", "_id" + "=" + _id, null) > 0;
     }
 
     public String getDevice(String description, String apikey, String device, String user) {
@@ -121,6 +125,54 @@ public class DatabaseAccess {
             e.printStackTrace();
         }
     }
+
+    //---deletes a particular title---
+    public boolean deleteDevice(String _id) {
+
+        //database.rawQuery("DELETE FROM Dispositivo WHERE _id = '" + _id + "'", null);
+        return database.delete("Dispositivo", "_id" + "=" + _id, null) > 0;
+    }
+
+    public void setUser(String username, String password) {
+        try {
+            ContentValues newRow = new ContentValues();
+            newRow.put(TU_USER, username);
+            newRow.put(TU_PASSWORD, password);
+            database.insertWithOnConflict(TABLE_USER, null, newRow, SQLiteDatabase.CONFLICT_ROLLBACK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getUser(String username, String password) {
+        try {
+            Cursor cursor = database.rawQuery("SELECT * FROM " + TABLE_USER + " WHERE " + TU_USER + " = '" + username + "' AND " + TU_PASSWORD + "= '" + password + "'", null);
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                return (cursor.getString(cursor.getColumnIndexOrThrow("_id")));
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public User getUser(String _id) {
+        try {
+            Cursor cursor = database.rawQuery("SELECT * FROM " + TABLE_USER + " WHERE _id = '" + _id + "'", null);
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                User user = new User();
+                user.setUsername(cursor.getString(0));
+                user.setPassword(cursor.getString(1));
+                return user;
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
 /**
  * Read all quotes from the database.

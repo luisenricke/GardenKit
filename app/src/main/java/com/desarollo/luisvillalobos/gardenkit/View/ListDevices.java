@@ -3,6 +3,7 @@ package com.desarollo.luisvillalobos.gardenkit.View;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -10,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,8 +27,9 @@ import com.desarollo.luisvillalobos.gardenkit.R;
 public class ListDevices extends AppCompatActivity {
 
     //private ImageButton imgBtnAdd;
-    private FloatingActionButton imgBtnAdd;
-    private ListView lvDevice;
+    //private FloatingActionButton imgBtnAdd;
+    //private ListView lvDevice;
+    private FloatingActionButton btnLogOut;
 
     private Context context;
     private DatabaseAccess databaseAccess;
@@ -43,30 +46,51 @@ public class ListDevices extends AppCompatActivity {
         SetUpActivity.hideSoftKeyboard(this);
 
         //Instanciando los Views
-        imgBtnAdd = findViewById(R.id.btnAdd);
-        lvDevice = findViewById(R.id.lvDevice);
+        //imgBtnAdd = findViewById(R.id.btnAdd);
+        //lvDevice = findViewById(R.id.lvDevice);
+        btnLogOut = (FloatingActionButton) findViewById(R.id.btn_logout);
 
         //Configurando el ListView
-        databaseAccess = DatabaseAccess.getInstance(this);
-        databaseAccess.open();
-        Cursor cursor = databaseAccess.getDevices();
+        //databaseAccess = DatabaseAccess.getInstance(this);
+        //databaseAccess.open();
+        //Cursor cursor = databaseAccess.getDevices();
 
-        cursor.moveToFirst();
-        do {
-            Log.d("Dispositivos", cursor.getString(cursor.getColumnIndexOrThrow("_id")));
-        } while (cursor.moveToNext());
-
-
-        DeviceCursorAdapter adapter = new DeviceCursorAdapter(context, cursor);
-        lvDevice.setAdapter(adapter);
+        //cursor.moveToFirst();
+        //do {
+        //    Log.d("Dispositivos", cursor.getString(cursor.getColumnIndexOrThrow("_id")));
+        //} while (cursor.moveToNext());
 
 
-        lvDevice.setOnItemClickListener(new lvDeviceClick());
-        lvDevice.setOnItemLongClickListener(new lvDeviceLongClick());
+        //DeviceCursorAdapter adapter = new DeviceCursorAdapter(context, cursor);
+        //lvDevice.setAdapter(adapter);
+
+
+        //lvDevice.setOnItemClickListener(new lvDeviceClick());
+        //lvDevice.setOnItemLongClickListener(new lvDeviceLongClick());
 
 
         //Configurando el ImageButton
-        imgBtnAdd.setOnClickListener(new AddImgBtn());
+        //imgBtnAdd.setOnClickListener(new AddImgBtn());
+        btnLogOut.setOnClickListener(new btnLogOut());
+
+        //SharedPreferences settings = getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE);
+        //String _id = settings.getString("_id", null);
+        //Log.d("Prueba",_id);
+    }
+
+    class btnLogOut implements View.OnClickListener{
+        @Override
+        public void onClick(View view) {
+            SharedPreferences settings = getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("logged", false);
+            editor.remove("_id");
+            editor.commit();
+            Intent intent = new Intent(context, Login.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
     }
 
     class lvDeviceLongClick implements AdapterView.OnItemLongClickListener {
@@ -140,7 +164,7 @@ public class ListDevices extends AppCompatActivity {
 
                 Cursor cursor = databaseAccess.getDevices();
                 DeviceCursorAdapter adapter = new DeviceCursorAdapter(context, cursor);
-                lvDevice.setAdapter(adapter);
+                //lvDevice.setAdapter(adapter);
                 databaseAccess.close();
                 recreate();
                 Toast.makeText(context, "Se ha agredado satisfactoriamente", Toast.LENGTH_LONG).show();
