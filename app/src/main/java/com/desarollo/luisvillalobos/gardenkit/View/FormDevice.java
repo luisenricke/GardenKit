@@ -1,68 +1,61 @@
 package com.desarollo.luisvillalobos.gardenkit.View;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
+import com.desarollo.luisvillalobos.gardenkit.Model.Device;
 import com.desarollo.luisvillalobos.gardenkit.R;
 
 public class FormDevice extends AppCompatActivity {
 
-    /*
-    private ImageButton imgBtnBack;
-    private EditText txtDescription;
-    private EditText txtApiKey;
-    private EditText txtDevice;
-    private EditText txtUser;
-    private Button btnAdd;
-*/
-
-    private EditText x;
+    private EditText inName, inDescription, inDevice, inApiKey;
+    private Button btnAction;
+    private FloatingActionButton btnHome;
 
     private Context context;
     private DatabaseAccess databaseAccess;
+    public static final String PREFS_NAME = "SGKLog";
+    private int fk;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.form_device);
         context = getBaseContext();
+        fk = Integer.parseInt(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString("_id", null));
 
-        //Configuración de Activity
         SetUpActivity.hiderActionBar(this);
         SetUpActivity.hideStatusBar(this);
         SetUpActivity.hideSoftKeyboard(this);
 
-        x = (EditText) findViewById(R.id.in_apikey);
+        inName = (EditText) findViewById(R.id.in_name);
+        inDescription = (EditText) findViewById(R.id.in_description);
+        inDevice = (EditText) findViewById(R.id.in_device);
+        inApiKey = (EditText) findViewById(R.id.in_apikey);
+        btnAction = (Button) findViewById(R.id.btn_action);
+        btnHome = (FloatingActionButton) findViewById(R.id.btn_home);
 
-
-/*
-        //Instanciando los Views
-        imgBtnBack = (ImageButton) findViewById(R.id.btnBack);
-        txtDescription = (EditText) findViewById(R.id.txtDescription);
-        txtApiKey = (EditText) findViewById(R.id.txtApiKey);
-        txtDevice = (EditText) findViewById(R.id.txtDevice);
-        txtUser = (EditText) findViewById(R.id.txtUser);
-        btnAdd = (Button) findViewById(R.id.btnAdd);
-
-        //Configurando las views
-        btnAdd.setOnClickListener(new AddBtnClick());
-        imgBtnBack.setOnClickListener(new BackImgBtnClick());
-        */
+        btnAction.setOnClickListener(new btnAddDeviceClick());
+        btnHome.setOnClickListener(new btnHomeClick());
     }
-/*
-    class AddBtnClick implements View.OnClickListener {
 
+    class btnAddDeviceClick implements View.OnClickListener {
         @Override
         public void onClick(View view) {
             Intent returnIntent = getIntent();
-            btnAdd.setEnabled(true);
-            btnAdd.setClickable(true);
-            if (txtDescription.getText().toString().trim().length() != 0 && txtApiKey.getText().toString().trim().length() != 0 && txtDevice.getText().toString().trim().length() != 0 && txtUser.getText().toString().trim().length() != 0) {
-                Device device = new Device(txtDescription.getText().toString().trim(), txtApiKey.getText().toString().trim(), txtDevice.getText().toString().trim(), txtUser.getText().toString().trim());
+            if (inDescription.getText().toString().trim().length() != 0 && inApiKey.getText().toString().trim().length() != 0 && inDevice.getText().toString().trim().length() != 0 && inName.getText().toString().trim().length() != 0) {
+                Device device = new Device(inDescription.getText().toString().trim(), inApiKey.getText().toString().trim(), inDevice.getText().toString().trim(), inName.getText().toString().trim(), fk);
                 returnIntent.putExtra("object", device);
                 returnIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 returnIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -72,18 +65,15 @@ public class FormDevice extends AppCompatActivity {
                 //overridePendingTransition( 0, 0);
                 Toast.makeText(context, "No se rellenaron los campos correctamentre", Toast.LENGTH_SHORT).show();
             }
-            btnAdd.setEnabled(true);
-            btnAdd.setClickable(true);
         }
     }
 
-    class BackImgBtnClick implements View.OnClickListener {
-
+    class btnHomeClick implements View.OnClickListener {
         @Override
         public void onClick(View view) {
             Intent returnIntent = getIntent();
-            if (txtDescription.getText().toString().trim().length() != 0 && txtApiKey.getText().toString().trim().length() != 0 && txtDevice.getText().toString().trim().length() != 0 && txtUser.getText().toString().trim().length() != 0) {
-                Device device = new Device(txtDescription.getText().toString(), txtApiKey.getText().toString(), txtDevice.getText().toString(), txtUser.getText().toString());
+            if (inDescription.getText().toString().trim().length() != 0 && inApiKey.getText().toString().trim().length() != 0 && inDevice.getText().toString().trim().length() != 0 && inName.getText().toString().trim().length() != 0) {
+                Device device = new Device(inDescription.getText().toString(), inApiKey.getText().toString(), inDevice.getText().toString(), inName.getText().toString(), fk);
                 returnIntent.putExtra("object", device);
                 returnIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 returnIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -117,5 +107,4 @@ public class FormDevice extends AppCompatActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-    */
 }

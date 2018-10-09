@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
-import com.desarollo.luisvillalobos.gardenkit.Model.User;
 import com.desarollo.luisvillalobos.gardenkit.R;
 
 public class Login extends AppCompatActivity {
