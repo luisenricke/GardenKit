@@ -22,6 +22,7 @@ public class DatabaseAccess {
     private final String TDEVICE_APIKEY = "apiKey";
     private final String TDEVICE_DEVICE = "device";
     private final String TDEVICE_USER = "user";
+    private final String TDEVICE_FK = "fk_id";
 
     private final String TABLE_USER = "Usuario";
     private final String TU_USER = "username";
@@ -67,17 +68,27 @@ public class DatabaseAccess {
         }
     }
 
-    public Cursor getDevices() {
-        Log.d("prueba", "");
-        Cursor cursor = database.rawQuery("SELECT * FROM " + TABLE_DEVICE + ";", null);
-        Log.d("prueba", cursor.toString());
+    /*
+    CREATE TABLE "Dispositivo" (
+description	VARCHAR(10 , 140) NOT NULL,
+apiKey	VARCHAR(10 , 140) NOT NULL,
+device	VARCHAR(10 , 140) NOT NULL,
+user	VARCHAR(10 , 140) NOT NULL,
+fk_id	INTEGER NOT NULL,
+_id	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+FOREIGN KEY(fk_id) REFERENCES Usuario(_id)
+);
+     */
+
+    public Cursor getDevices(int fk) {
+        Cursor cursor = database.rawQuery("SELECT * FROM " + TABLE_DEVICE + " WHERE " + TDEVICE_FK + " = '" + fk + "';", null);
         cursor.moveToFirst();
         return cursor;
     }
 
-    public String getDevice(String description, String apikey, String device, String user) {
+    public String getDevice(String description, String apikey, String device, String user, int fk) {
         try {
-            Cursor cursor = database.rawQuery("SELECT * FROM Dispositivo WHERE description = '" + description + "' AND apiKey = '" + apikey + "' AND device = '" + device + "' AND user = '" + user + "'", null);
+            Cursor cursor = database.rawQuery("SELECT * FROM " + TABLE_DEVICE + " WHERE " + TDEVICE_DESCRIPTION + " = '" + description + "' AND " + TDEVICE_APIKEY + " = '" + apikey + "' AND " + TDEVICE_DEVICE + " = '" + device + "' AND " + TDEVICE_USER + " = '" + user + "' AND " + TDEVICE_FK + " = '" + fk + "'", null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 return (cursor.getString(cursor.getColumnIndexOrThrow("_id")));
@@ -91,7 +102,7 @@ public class DatabaseAccess {
 
     public Device getDevice(String _id) {
         try {
-            Cursor cursor = database.rawQuery("SELECT * FROM Dispositivo WHERE _id = '" + _id + "'", null);
+            Cursor cursor = database.rawQuery("SELECT * FROM " + TABLE_DEVICE + " WHERE _id = '" + _id + "'", null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 Device device = new Device();
@@ -99,6 +110,7 @@ public class DatabaseAccess {
                 device.setApiKey(cursor.getString(1));
                 device.setDevice(cursor.getString(2));
                 device.setUser(cursor.getString(3));
+                device.setFk(cursor.getInt(4));
                 return device;
             }
             return null;
@@ -107,19 +119,20 @@ public class DatabaseAccess {
         }
     }
 
-    public void setDevice(String description, String apikey, String device, String user) {
+    public void setDevice(String description, String apikey, String device, String user,int fk) {
 
-        /**
-         *  New Query: INSERT INTO Dispositivo (description,apiKey,device,user,fk_id)
-         * VALUES ("qwe","cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51","test_prueba@spikedev.spikedev","Jardin 2",1);
+        /*
+           New Query: INSERT INTO Dispositivo (description,apiKey,device,user,fk_id)
+          VALUES ("qwe","cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51","test_prueba@spikedev.spikedev","Jardin 2",1);
          */
         try {
             ContentValues newRow = new ContentValues();
-            newRow.put("description", description);
-            newRow.put("apiKey", apikey);
-            newRow.put("device", device);
-            newRow.put("user", user);
-            database.insertWithOnConflict("Dispositivo", null, newRow, SQLiteDatabase.CONFLICT_ROLLBACK);
+            newRow.put(TDEVICE_DESCRIPTION, description);
+            newRow.put(TDEVICE_APIKEY, apikey);
+            newRow.put(TDEVICE_DEVICE, device);
+            newRow.put(TDEVICE_USER, user);
+            newRow.put(TDEVICE_FK,fk);
+            database.insertWithOnConflict(TABLE_DEVICE, null, newRow, SQLiteDatabase.CONFLICT_ROLLBACK);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,7 +143,7 @@ public class DatabaseAccess {
     public boolean deleteDevice(String _id) {
 
         //database.rawQuery("DELETE FROM Dispositivo WHERE _id = '" + _id + "'", null);
-        return database.delete("Dispositivo", "_id" + "=" + _id, null) > 0;
+        return database.delete(TABLE_DEVICE, "_id" + "=" + _id, null) > 0;
     }
 
     public void setUser(String username, String password) {

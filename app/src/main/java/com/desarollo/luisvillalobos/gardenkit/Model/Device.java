@@ -8,16 +8,26 @@ public class Device implements Parcelable {
     protected String apiKey;
     protected String device;
     protected String user;
+    protected int fk;
 
 
     public Device() {
     }
 
-    public Device(String descripcion, String apiKey, String device, String user) {
+    public Device(String descripcion, String apiKey, String device, String user, int fk) {
         this.descripcion = descripcion;
         this.apiKey = apiKey;
         this.device = device;
         this.user = user;
+        this.fk = fk;
+    }
+
+    public int getFk() {
+        return fk;
+    }
+
+    public void setFk(int fk) {
+        this.fk = fk;
     }
 
     public String getDescripcion() {
@@ -57,6 +67,7 @@ public class Device implements Parcelable {
         apiKey = in.readString();
         device = in.readString();
         user = in.readString();
+        fk = in.readInt();
     }
 
     public static final Creator<Device> CREATOR = new Creator<Device>() {
@@ -82,6 +93,7 @@ public class Device implements Parcelable {
         parcel.writeString(apiKey);
         parcel.writeString(device);
         parcel.writeString(user);
+        parcel.writeInt(fk);
     }
     /*
     public static final Creator<Device> CREATOR = new Creator<Device>() {

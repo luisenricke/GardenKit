@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -26,72 +25,44 @@ import com.desarollo.luisvillalobos.gardenkit.R;
 
 public class ListDevices extends AppCompatActivity {
 
-    //private ImageButton imgBtnAdd;
-    //private FloatingActionButton imgBtnAdd;
-    //private ListView lvDevice;
-    private FloatingActionButton btnLogOut;
+    private ListView lvDevice;
+    private FloatingActionButton btnLogOut, btnAdd, btnHome;
 
     private Context context;
     private DatabaseAccess databaseAccess;
+    public static final String PREFS_NAME = "SGKLog";
+    private int fk;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_devices);
         context = getBaseContext();
+        fk = Integer.parseInt(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString("_id", null));
 
-        //Configuración de Activity
         SetUpActivity.hiderActionBar(this);
         SetUpActivity.hideStatusBar(this);
         SetUpActivity.hideSoftKeyboard(this);
 
-        //Instanciando los Views
-        //imgBtnAdd = findViewById(R.id.btnAdd);
-        //lvDevice = findViewById(R.id.lvDevice);
+        lvDevice = (ListView) findViewById(R.id.lvDevice);
         btnLogOut = (FloatingActionButton) findViewById(R.id.btn_logout);
+        btnAdd = (FloatingActionButton) findViewById(R.id.btn_add);
+        btnHome = (FloatingActionButton) findViewById(R.id.btn_home);
 
-        //Configurando el ListView
-        //databaseAccess = DatabaseAccess.getInstance(this);
-        //databaseAccess.open();
-        //Cursor cursor = databaseAccess.getDevices();
+        databaseAccess = DatabaseAccess.getInstance(this);
+        databaseAccess.open();
+        Cursor cursor = databaseAccess.getDevices(fk);
+        cursor.moveToFirst();
+        DeviceCursorAdapter adapter = new DeviceCursorAdapter(context, cursor);
+        lvDevice.setAdapter(adapter);
 
-        //cursor.moveToFirst();
-        //do {
-        //    Log.d("Dispositivos", cursor.getString(cursor.getColumnIndexOrThrow("_id")));
-        //} while (cursor.moveToNext());
-
-
-        //DeviceCursorAdapter adapter = new DeviceCursorAdapter(context, cursor);
-        //lvDevice.setAdapter(adapter);
-
-
-        //lvDevice.setOnItemClickListener(new lvDeviceClick());
-        //lvDevice.setOnItemLongClickListener(new lvDeviceLongClick());
-
-
-        //Configurando el ImageButton
-        //imgBtnAdd.setOnClickListener(new AddImgBtn());
+        lvDevice.setOnItemClickListener(new lvDeviceClick());
+        lvDevice.setOnItemLongClickListener(new lvDeviceLongClick());
+        btnAdd.setOnClickListener(new btnAdd());
         btnLogOut.setOnClickListener(new btnLogOut());
 
-        //SharedPreferences settings = getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE);
-        //String _id = settings.getString("_id", null);
-        //Log.d("Prueba",_id);
     }
 
-    class btnLogOut implements View.OnClickListener{
-        @Override
-        public void onClick(View view) {
-            SharedPreferences settings = getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putBoolean("logged", false);
-            editor.remove("_id");
-            editor.commit();
-            Intent intent = new Intent(context, Login.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        }
-    }
 
     class lvDeviceLongClick implements AdapterView.OnItemLongClickListener {
 
@@ -102,7 +73,7 @@ public class ListDevices extends AppCompatActivity {
             TextView lblDevice = view.findViewById(R.id.lblDevice);
             TextView lblUser = view.findViewById(R.id.lblUser);
 
-            String _id = databaseAccess.getDevice(lblDescription.getText().toString(), lblApikey.getText().toString(), lblDevice.getText().toString(), lblUser.getText().toString());
+            String _id = databaseAccess.getDevice(lblDescription.getText().toString(), lblApikey.getText().toString(), lblDevice.getText().toString(), lblUser.getText().toString(), fk);
             databaseAccess = DatabaseAccess.getInstance(context);
             databaseAccess.open();
 
@@ -111,9 +82,9 @@ public class ListDevices extends AppCompatActivity {
                 Toast.makeText(context, "Se ha borrado satisfactoriamente", Toast.LENGTH_LONG).show();
                 //recreate();
                 finish();
-                overridePendingTransition( 0, 0);
+                overridePendingTransition(0, 0);
                 startActivity(getIntent());
-                overridePendingTransition( 0, 0);
+                overridePendingTransition(0, 0);
             } else {
                 Toast.makeText(context, "Hubo problemas con el reqistro", Toast.LENGTH_LONG).show();
             }
@@ -132,22 +103,36 @@ public class ListDevices extends AppCompatActivity {
             TextView lblDevice = view.findViewById(R.id.lblDevice);
             TextView lblUser = view.findViewById(R.id.lblUser);
 
-            String _id = databaseAccess.getDevice(lblDescription.getText().toString(), lblApikey.getText().toString(), lblDevice.getText().toString(), lblUser.getText().toString());
+            String _id = databaseAccess.getDevice(lblDescription.getText().toString(), lblApikey.getText().toString(), lblDevice.getText().toString(), lblUser.getText().toString(), fk);
             Intent intent = new Intent(context, graphs.class);
             intent.putExtra("_id", _id);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
         }
-
     }
 
-    class AddImgBtn implements View.OnClickListener {
+    class btnAdd implements View.OnClickListener {
 
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(context, FormDevice.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             startActivityForResult(intent, 1);
+        }
+    }
+
+    class btnLogOut implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("logged", false);
+            editor.remove("_id");
+            editor.commit();
+            Intent intent = new Intent(context, Login.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
         }
     }
 
@@ -160,11 +145,11 @@ public class ListDevices extends AppCompatActivity {
                 Device device = data.getParcelableExtra("object");
                 databaseAccess = DatabaseAccess.getInstance(this);
                 databaseAccess.open();
-                databaseAccess.setDevice(device.getDescripcion(), device.getApiKey(), device.getDevice(), device.getUser());
+                databaseAccess.setDevice(device.getDescripcion(), device.getApiKey(), device.getDevice(), device.getUser(), fk);
 
-                Cursor cursor = databaseAccess.getDevices();
+                Cursor cursor = databaseAccess.getDevices(fk);
                 DeviceCursorAdapter adapter = new DeviceCursorAdapter(context, cursor);
-                //lvDevice.setAdapter(adapter);
+                lvDevice.setAdapter(adapter);
                 databaseAccess.close();
                 recreate();
                 Toast.makeText(context, "Se ha agredado satisfactoriamente", Toast.LENGTH_LONG).show();

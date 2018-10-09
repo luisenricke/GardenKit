@@ -34,7 +34,7 @@ public class Login extends AppCompatActivity {
         resources = getResources();
         context = getApplicationContext();//context = getBaseContext();
         actionSelectedOption = true;
-        
+
         SetUpActivity.hiderActionBar(this);
         SetUpActivity.hideStatusBar(this);
         SetUpActivity.hideSoftKeyboard(this);
@@ -50,9 +50,15 @@ public class Login extends AppCompatActivity {
         btnSignUp.setOnClickListener(new signUpnBtnClick());
         btnAction.setOnClickListener(new actionBtnClick());
 
+        /*SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("logged", false);
+        editor.remove("_id");
+        editor.commit();*/
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         if (settings.getBoolean("logged", true)) {
             Intent intent = new Intent(context, ListDevices.class);
+            Log.d("Prueba", "paso");
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
         }
@@ -79,8 +85,9 @@ public class Login extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Ha iniciado correctamente sesión", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(context, ListDevices.class);
                         startActivity(intent);
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Los datos son incorrectos", Toast.LENGTH_SHORT).show();
                     }
-
                 } else {
                     Toast.makeText(context, "Falta ingresar el usuario y/o contraseña", Toast.LENGTH_LONG).show();
                 }

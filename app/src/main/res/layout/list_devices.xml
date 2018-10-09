@@ -6,7 +6,6 @@
     android:background="#FFFFFF"
     tools:context=".View.ListDevices">
 
-
     <android.support.constraint.Guideline
         android:id="@+id/guideline2"
         android:layout_width="wrap_content"
@@ -69,7 +68,14 @@
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:srcCompat="@drawable/logov2" />
 
-
+    <ListView
+        android:id="@+id/lvDevice"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline6"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/guideline" />
 
     <TextView
         android:id="@+id/footer"
@@ -86,14 +92,6 @@
         app:layout_constraintTop_toTopOf="@+id/guideline7"
         app:layout_constraintVertical_bias="1.0" />
 
-    <ListView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline6"
-        app:layout_constraintEnd_toStartOf="@+id/guideline3"
-        app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/guideline" />
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_home"
         android:layout_width="wrap_content"
@@ -107,9 +105,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:srcCompat="@mipmap/img_home" />
-
-
+        app:srcCompat="@mipmap/img_tree" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_logout"
@@ -134,7 +130,6 @@
         app:layout_constraintBottom_toTopOf="@+id/footer"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@mipmap/img_add" />
-
 
 </android.support.constraint.ConstraintLayout>
 
