@@ -5,13 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -48,29 +48,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-/**
- * Dispisitivo 1: test_prueba@spikedev.spikedev
- * ApiKey 1: cef8f456d2ec6bebd28021dc8b1bbcfc0330ad558a0c0b2e1b4b19f8bb514d51
- * <p>
- * Dispositivo 2: Humedad_PH@mariohlh.mariohlh
- * ApiKey: fddc93fc422beea85c5104f2d4342a48a3a007ac4e6e7a71ca85abacdf9baf95
- */
-
 public class graphs extends AppCompatActivity {
 
-    //protected ImageButton imgBtnBack;
+    private LineChart graphWet,graphPh,graphH20,graphV;
+    private EditText inChooseDate_to,inChooseDate_from;
+    private FloatingActionButton btnHome;
 
-    //protected LinearLayout graphPh;
-    protected LineChart graphWet;
-    protected LineChart graphPh;
-    protected LineChart graphH20;
-    protected LineChart graphV;
-
-
-    protected EditText txtChooseDate;
-    protected EditText txtNowDate;
-
-    protected Context context;
+    private Context context;
 
     private static final String JSON_URL = "http://api.carriots.com/streams/?";
     private static final String DEVICE = "device=";
@@ -94,17 +78,13 @@ public class graphs extends AppCompatActivity {
         setContentView(R.layout.graphs);
         context = this;
 
-        //Configuración de Activity
         SetUpActivity.hiderActionBar(this);
         SetUpActivity.hideStatusBar(this);
         SetUpActivity.hideSoftKeyboard(this);
 
-        //Instanciando los Views
-        //imgBtnBack = (ImageButton) findViewById(R.id.btnBack);
-        txtChooseDate = (EditText) findViewById(R.id.txtChooseDate);
-        txtNowDate = (EditText) findViewById(R.id.txtNowDate);
-
-        //graphPh = (LinearLayout) findViewById(R.id.graphPh);
+        inChooseDate_to = (EditText) findViewById(R.id.in_choosedate_to);
+        inChooseDate_from = (EditText) findViewById(R.id.in_choosedate_from);
+        btnHome = (FloatingActionButton) findViewById(R.id.btn_home);
         graphWet = (LineChart) findViewById(R.id.graphWet);
         graphPh = (LineChart) findViewById(R.id.graphPh);
         graphH20 = (LineChart) findViewById(R.id.graphH20);
@@ -138,7 +118,7 @@ public class graphs extends AppCompatActivity {
         dateFormat = "dd-MM-yyyy";
         sdf = new SimpleDateFormat(dateFormat);
         String dateString = sdf.format(myCalendarTo.getTime());
-        txtNowDate.setText(dateString);
+        inChooseDate_from.setText(dateString);
 
         // set calendar date and update editDate
         date = new DatePickerDialog.OnDateSetListener() {
@@ -152,8 +132,8 @@ public class graphs extends AppCompatActivity {
         };
 
         //Configurando las views
-        //imgBtnBack.setOnClickListener(new BackImgBtnClick());
-        txtChooseDate.setOnClickListener(new ChooseDateTxt());
+        btnHome.setOnClickListener(new btnHomeClick());
+        inChooseDate_to.setOnClickListener(new ChooseDateTxt());
     }
 
     class ChooseDateTxt implements View.OnClickListener {
@@ -170,7 +150,7 @@ public class graphs extends AppCompatActivity {
 
 
     private void updateDate() {
-        txtChooseDate.setText(sdf.format(myCalendarFrom.getTime()));
+        inChooseDate_to.setText(sdf.format(myCalendarFrom.getTime()));
 
         Date fromDate = DateOperations.clearTime(new Date(myCalendarFrom.getTimeInMillis()));
         Date toDate = DateOperations.getEnd(new Date(myCalendarTo.getTimeInMillis()));
@@ -195,7 +175,6 @@ public class graphs extends AppCompatActivity {
         //Preparo los datos del listview seleccionado
         String device = obj.getDevice();
         final String apiKey = obj.getApiKey();
-
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
                 JSON_URL + DEVICE + device
@@ -229,7 +208,6 @@ public class graphs extends AppCompatActivity {
                                 Log.v("Sirve", String.valueOf(i.getWet1()));
                             }
 
-                            //Grafica Humedad
                             List<Entry> entriesWet1 = new ArrayList<Entry>();
                             List<Entry> entriesWet2 = new ArrayList<Entry>();
                             List<Entry> entriesWet3 = new ArrayList<Entry>();
@@ -239,7 +217,6 @@ public class graphs extends AppCompatActivity {
                             List<Entry> entriesPh = new ArrayList<Entry>();
                             List<Entry> entriesH20 = new ArrayList<Entry>();
                             List<Entry> entriesV = new ArrayList<Entry>();
-
 
                             int i = 0;
                             for (Data data : dataList) {// turn your data into Entry objects
@@ -363,7 +340,6 @@ public class graphs extends AppCompatActivity {
                             graphV.getDescription().setTextSize(10f);
                             graphV.setData(new LineData(dataSetV));
 
-
                             //Custom Graphics
                             graphWet.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Set the xAxis position to bottom. Default is top
                             graphWet.getXAxis().setGranularity(1f);// minimum axis-step (interval) is 1
@@ -472,8 +448,7 @@ public class graphs extends AppCompatActivity {
         requestQueue.add(stringRequest);
     }
 
-    class BackImgBtnClick implements View.OnClickListener {
-
+    class btnHomeClick implements View.OnClickListener {
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(context, ListDevices.class);

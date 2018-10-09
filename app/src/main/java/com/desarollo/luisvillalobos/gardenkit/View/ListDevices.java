@@ -38,7 +38,23 @@ public class ListDevices extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_devices);
         context = getBaseContext();
-        fk = Integer.parseInt(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString("_id", null));
+
+        try{
+            fk = Integer.parseInt(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString("_id", null));
+        }catch (NumberFormatException ex){
+            SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("logged", false);
+            editor.remove("_id");
+            editor.commit();
+
+            Intent intent = new Intent(context, Login.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(intent);
+        }
+
+
 
         SetUpActivity.hiderActionBar(this);
         SetUpActivity.hideStatusBar(this);
