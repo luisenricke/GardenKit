@@ -1,7 +1,9 @@
 package com.desarollo.luisvillalobos.gardenkit.View;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -39,9 +41,9 @@ public class ListDevices extends AppCompatActivity {
         setContentView(R.layout.list_devices);
         context = getBaseContext();
 
-        try{
+        try {
             fk = Integer.parseInt(getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString("_id", null));
-        }catch (NumberFormatException ex){
+        } catch (NumberFormatException ex) {
             SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean("logged", false);
@@ -53,8 +55,6 @@ public class ListDevices extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
         }
-
-
 
         SetUpActivity.hiderActionBar(this);
         SetUpActivity.hideStatusBar(this);
@@ -76,12 +76,9 @@ public class ListDevices extends AppCompatActivity {
         lvDevice.setOnItemLongClickListener(new lvDeviceLongClick());
         btnAdd.setOnClickListener(new btnAdd());
         btnLogOut.setOnClickListener(new btnLogOut());
-
     }
 
-
     class lvDeviceLongClick implements AdapterView.OnItemLongClickListener {
-
         @Override
         public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
             TextView lblDescription = view.findViewById(R.id.lblDescription);
@@ -94,7 +91,6 @@ public class ListDevices extends AppCompatActivity {
             databaseAccess.open();
 
             if (databaseAccess.deleteDevice(_id)) {
-
                 Toast.makeText(context, "Se ha borrado satisfactoriamente", Toast.LENGTH_LONG).show();
                 //recreate();
                 finish();
@@ -104,8 +100,6 @@ public class ListDevices extends AppCompatActivity {
             } else {
                 Toast.makeText(context, "Hubo problemas con el reqistro", Toast.LENGTH_LONG).show();
             }
-
-
             databaseAccess.close();
             return true;
         }

@@ -7,8 +7,6 @@ public class Data {
     private double ph, h20;
     private Date date;
 
-
-
     public Data(Date date, int wet1, int wet2, int wet3, int wet4, int wet5, double ph, double h20, int v) {
         this.wet1 = wet1;
         this.wet2 = wet2;

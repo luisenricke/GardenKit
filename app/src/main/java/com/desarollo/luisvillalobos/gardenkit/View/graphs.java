@@ -25,6 +25,7 @@ import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DateOperations;
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Model.Data;
+import com.desarollo.luisvillalobos.gardenkit.Model.DataWithStrings;
 import com.desarollo.luisvillalobos.gardenkit.Model.Device;
 import com.desarollo.luisvillalobos.gardenkit.R;
 import com.github.mikephil.charting.animation.Easing;
@@ -50,7 +51,7 @@ import java.util.TimeZone;
 
 public class graphs extends AppCompatActivity {
 
-    private LineChart graphWet,graphPh,graphH20,graphV;
+    private LineChart graphWet,graphPh/*,graphH20,graphV*/;
     private EditText inChooseDate_to,inChooseDate_from;
     private FloatingActionButton btnHome;
 
@@ -70,7 +71,8 @@ public class graphs extends AppCompatActivity {
     protected DatePickerDialog.OnDateSetListener date;
     protected SimpleDateFormat sdf;
 
-    public List<Data> dataList;
+    //public List<Data> dataList;
+    public List<DataWithStrings> dataList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +89,8 @@ public class graphs extends AppCompatActivity {
         btnHome = (FloatingActionButton) findViewById(R.id.btn_home);
         graphWet = (LineChart) findViewById(R.id.graphWet);
         graphPh = (LineChart) findViewById(R.id.graphPh);
-        graphH20 = (LineChart) findViewById(R.id.graphH20);
-        graphV = (LineChart) findViewById(R.id.graphV);
+        //graphH20 = (LineChart) findViewById(R.id.graphH20);
+        //graphV = (LineChart) findViewById(R.id.graphV);
 
         graphWet.setNoDataTextColor(Color.RED);
         graphWet.setNoDataText("No hay datos para graficar");
@@ -100,7 +102,7 @@ public class graphs extends AppCompatActivity {
         graphPh.setDoubleTapToZoomEnabled(false);
         graphPh.invalidate();
 
-        graphH20.setNoDataTextColor(Color.RED);
+        /*graphH20.setNoDataTextColor(Color.RED);
         graphH20.setNoDataText("No hay datos para graficar");
         graphH20.setDoubleTapToZoomEnabled(false);
         graphH20.invalidate();
@@ -108,7 +110,7 @@ public class graphs extends AppCompatActivity {
         graphV.setNoDataTextColor(Color.RED);
         graphV.setNoDataText("No hay datos para graficar");
         graphV.setDoubleTapToZoomEnabled(false);
-        graphV.invalidate();
+        graphV.invalidate();*/
 
         //Configuración de la fecha
         myCalendarFrom = Calendar.getInstance();
@@ -190,7 +192,7 @@ public class graphs extends AppCompatActivity {
                                 JSONObject aux = results.getJSONObject(i);
                                 JSONObject data = aux.getJSONObject("data");
                                 long at = aux.getLong("at");
-
+                                /*
                                 Data dataJSON = new Data(new Date(aux.getLong("at") * 1000L),
                                         data.getInt("H1"),
                                         data.getInt("H2"),
@@ -199,12 +201,19 @@ public class graphs extends AppCompatActivity {
                                         data.getInt("H5"),
                                         data.getDouble("PH"),
                                         data.getDouble("H2O"),
-                                        data.getInt("V"));
+                                        data.getInt("V"));*/
+                                DataWithStrings dataJSON = new DataWithStrings(new Date(aux.getLong("at") * 1000L),
+                                        data.getString("Humedad1: "),
+                                        data.getString("Humedad2: "),
+                                        data.getString("Humedad3: "),
+                                        data.getString("Humedad4: "),
+                                        data.getString("Humedad5: "),
+                                        data.getDouble("PH: "));
 
                                 dataList.add(dataJSON);
                             }
 
-                            for (Data i : dataList) {
+                            for (DataWithStrings i : dataList) {
                                 Log.v("Sirve", String.valueOf(i.getWet1()));
                             }
 
@@ -215,19 +224,28 @@ public class graphs extends AppCompatActivity {
                             List<Entry> entriesWet5 = new ArrayList<Entry>();
 
                             List<Entry> entriesPh = new ArrayList<Entry>();
-                            List<Entry> entriesH20 = new ArrayList<Entry>();
-                            List<Entry> entriesV = new ArrayList<Entry>();
+                            /*List<Entry> entriesH20 = new ArrayList<Entry>();
+                            List<Entry> entriesV = new ArrayList<Entry>();*/
 
                             int i = 0;
-                            for (Data data : dataList) {// turn your data into Entry objects
+                            /*for (DataWithStrings data : dataList) {// turn your data into Entry objects
                                 entriesWet1.add(new Entry(i, data.getWet1()));
                                 entriesWet2.add(new Entry(i, data.getWet2()));
                                 entriesWet3.add(new Entry(i, data.getWet3()));
                                 entriesWet4.add(new Entry(i, data.getWet4()));
                                 entriesWet5.add(new Entry(i, data.getWet5()));
                                 entriesPh.add(new Entry(i, (float) data.getPh()));
-                                entriesH20.add(new Entry(i, (float) data.getH20()));
-                                entriesV.add(new Entry(i, data.getV()));
+                                *//*entriesH20.add(new Entry(i, (float) data.getH20()));
+                                entriesV.add(new Entry(i, data.getV()));*//*
+                                i++;
+                            }*/
+                            for (DataWithStrings data : dataList) {// turn your data into Entry objects
+                                entriesWet1.add(new Entry(i, Integer.parseInt(data.getWet1())));
+                                entriesWet2.add(new Entry(i, Integer.parseInt(data.getWet2())));
+                                entriesWet3.add(new Entry(i, Integer.parseInt(data.getWet3())));
+                                entriesWet4.add(new Entry(i, Integer.parseInt(data.getWet4())));
+                                entriesWet5.add(new Entry(i, Integer.parseInt(data.getWet5())));
+                                entriesPh.add(new Entry(i, (float) data.getPh()));
                                 i++;
                             }
 
@@ -292,7 +310,7 @@ public class graphs extends AppCompatActivity {
                             dataSetPh.setHighLightColor(Color.CYAN);
                             dataSetPh.setValueTextSize(8);
 
-                            LineDataSet dataSetH20 = new LineDataSet(entriesH20, "Nivel de agua");
+                            /*LineDataSet dataSetH20 = new LineDataSet(entriesH20, "Nivel de agua");
                             dataSetH20.setColor(Color.GREEN);
                             dataSetH20.setValueTextColor(Color.BLACK);
                             dataSetH20.setLineWidth(2);
@@ -310,7 +328,7 @@ public class graphs extends AppCompatActivity {
                             dataSetV.setCircleRadius(4f);
                             dataSetV.setDrawCircleHole(false);
                             dataSetV.setHighLightColor(Color.MAGENTA);
-                            dataSetV.setValueTextSize(8);
+                            dataSetV.setValueTextSize(8);*/
 
                             /*
                             //Customizar el eje de las X
@@ -332,13 +350,13 @@ public class graphs extends AppCompatActivity {
                             graphPh.getDescription().setTextSize(10f);
                             graphPh.setData(new LineData(dataSetPh));
 
-                            graphH20.getDescription().setText("Gráfica de Nivel de Agua");
+                           /* graphH20.getDescription().setText("Gráfica de Nivel de Agua");
                             graphH20.getDescription().setTextSize(10f);
                             graphH20.setData(new LineData(dataSetH20));
 
                             graphV.getDescription().setText("Gráfica de Energía Electrica");
                             graphV.getDescription().setTextSize(10f);
-                            graphV.setData(new LineData(dataSetV));
+                            graphV.setData(new LineData(dataSetV));*/
 
                             //Custom Graphics
                             graphWet.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Set the xAxis position to bottom. Default is top
@@ -351,7 +369,7 @@ public class graphs extends AppCompatActivity {
                             graphPh.getAxisRight().setEnabled(false);// Controlling right side of y axis
                             graphPh.getAxisLeft().setGranularity(0.1f);// Controlling left side of y axis
 
-                            graphH20.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Set the xAxis position to bottom. Default is top
+                            /*graphH20.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Set the xAxis position to bottom. Default is top
                             graphH20.getXAxis().setGranularity(1f);// minimum axis-step (interval) is 1
                             graphH20.getAxisRight().setEnabled(false);// Controlling right side of y axis
                             graphH20.getAxisLeft().setGranularity(0.1f);// Controlling left side of y axis
@@ -359,7 +377,7 @@ public class graphs extends AppCompatActivity {
                             graphV.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);// Set the xAxis position to bottom. Default is top
                             graphV.getXAxis().setGranularity(1f);// minimum axis-step (interval) is 1
                             graphV.getAxisRight().setEnabled(false);// Controlling right side of y axis
-                            graphV.getAxisLeft().setGranularity(1f);// Controlling left side of y axis
+                            graphV.getAxisLeft().setGranularity(1f);// Controlling left side of y axis*/
 
                             //Bordes Opcional
                             graphWet.setBorderWidth(2f);
@@ -368,11 +386,11 @@ public class graphs extends AppCompatActivity {
                             graphPh.setBorderWidth(2f);
                             graphPh.setDrawBorders(true);
 
-                            graphH20.setBorderWidth(2f);
+                            /*graphH20.setBorderWidth(2f);
                             graphH20.setDrawBorders(true);
 
                             graphV.setBorderWidth(2f);
-                            graphV.setDrawBorders(true);
+                            graphV.setDrawBorders(true);*/
 
                             //Limits
                             LimitLine upper_limit = new LimitLine(90, "Alto");
@@ -402,16 +420,16 @@ public class graphs extends AppCompatActivity {
                             graphWet.animateX(2500, Easing.EasingOption.EaseOutSine);
 
                             graphPh.animateX(2500, Easing.EasingOption.EaseOutSine);
-                            graphH20.animateX(2500, Easing.EasingOption.EaseOutSine);
-                            graphV.animateX(2500, Easing.EasingOption.EaseOutSine);
+                            /*graphH20.animateX(2500, Easing.EasingOption.EaseOutSine);
+                            graphV.animateX(2500, Easing.EasingOption.EaseOutSine);*/
 
                             graphWet.invalidate(); // refresh
                             graphPh.invalidate(); // refresh
-                            graphH20.invalidate(); // refresh
-                            graphV.invalidate(); // refresh
+                            /*graphH20.invalidate(); // refresh
+                            graphV.invalidate(); // refresh*/
 
 
-                            //Generar espacios en X de la tabla
+                            /*//Generar espacios en X de la tabla
                             if ((DateOperations.getDay(toDate) - DateOperations.getDay(fromDate) <= 5)) {
                                 //Generar por 24 horas los registros 24*Dias
                             } else if ((DateOperations.getMonth(toDate) - DateOperations.getMonth(fromDate) < 2)) {
@@ -421,7 +439,7 @@ public class graphs extends AppCompatActivity {
                             } else if ((DateOperations.getYear(toDate) - DateOperations.getYear(fromDate) >= 2)) {
                                 //Generar por años
                             }
-
+*/
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
