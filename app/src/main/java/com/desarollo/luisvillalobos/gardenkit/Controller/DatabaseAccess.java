@@ -127,7 +127,7 @@ FOREIGN KEY(fk_id) REFERENCES Usuario(_id)
          */
         try {
             ContentValues newRow = new ContentValues();
-            newRow.put(TDEVICE_DESCRIPTION, description);
+            //newRow.put(US, description);
             newRow.put(TDEVICE_APIKEY, apikey);
             newRow.put(TDEVICE_DEVICE, device);
             newRow.put(TDEVICE_USER, user);
