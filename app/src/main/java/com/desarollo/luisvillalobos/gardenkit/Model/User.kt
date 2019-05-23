@@ -33,7 +33,7 @@ class User {
     }
 
     companion object {
-        const val TABLE_NAME = "User"
+        const val TABLE_NAME = "UserJ"
 
         const val COLUMN_ID = "_id"
         const val COLUMN_EMAIL = "email"

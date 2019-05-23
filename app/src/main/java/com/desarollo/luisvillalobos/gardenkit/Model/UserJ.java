@@ -1,13 +1,13 @@
 package com.desarollo.luisvillalobos.gardenkit.Model;
 
-public class User {
+public class UserJ {
     protected String username,password;
 
-    public User(){
+    public UserJ(){
 
     }
 
-    public User(String username, String password) {
+    public UserJ(String username, String password) {
         this.username = username;
         this.password = password;
     }

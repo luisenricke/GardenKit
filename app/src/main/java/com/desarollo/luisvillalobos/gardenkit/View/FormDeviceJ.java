@@ -14,10 +14,10 @@ import android.widget.Toast;
 
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
-import com.desarollo.luisvillalobos.gardenkit.Model.Device;
+import com.desarollo.luisvillalobos.gardenkit.Model.DeviceJ;
 import com.desarollo.luisvillalobos.gardenkit.R;
 
-public class FormDevice extends AppCompatActivity {
+public class FormDeviceJ extends AppCompatActivity {
 
     private EditText inName, inDescription, inDevice, inApiKey;
     private Button btnAction;
@@ -55,7 +55,7 @@ public class FormDevice extends AppCompatActivity {
         public void onClick(View view) {
             Intent returnIntent = getIntent();
             if (inDescription.getText().toString().trim().length() != 0 && inApiKey.getText().toString().trim().length() != 0 && inDevice.getText().toString().trim().length() != 0 && inName.getText().toString().trim().length() != 0) {
-                Device device = new Device(inDescription.getText().toString().trim(), inApiKey.getText().toString().trim(), inDevice.getText().toString().trim(), inName.getText().toString().trim(), fk);
+                DeviceJ device = new DeviceJ(inDescription.getText().toString().trim(), inApiKey.getText().toString().trim(), inDevice.getText().toString().trim(), inName.getText().toString().trim(), fk);
                 returnIntent.putExtra("object", device);
                 returnIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 returnIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -73,7 +73,7 @@ public class FormDevice extends AppCompatActivity {
         public void onClick(View view) {
             Intent returnIntent = getIntent();
             if (inDescription.getText().toString().trim().length() != 0 && inApiKey.getText().toString().trim().length() != 0 && inDevice.getText().toString().trim().length() != 0 && inName.getText().toString().trim().length() != 0) {
-                Device device = new Device(inDescription.getText().toString(), inApiKey.getText().toString(), inDevice.getText().toString(), inName.getText().toString(), fk);
+                DeviceJ device = new DeviceJ(inDescription.getText().toString(), inApiKey.getText().toString(), inDevice.getText().toString(), inName.getText().toString(), fk);
                 returnIntent.putExtra("object", device);
                 returnIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 returnIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -93,7 +93,7 @@ public class FormDevice extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            //Intent intent = new Intent(context, ListDevices.class);
+            //Intent intent = new Intent(context, ListDevicesJ.class);
             //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             //startActivity(intent);

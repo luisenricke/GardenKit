@@ -3,7 +3,7 @@ package com.desarollo.luisvillalobos.gardenkit.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Device implements Parcelable {
+public class DeviceJ implements Parcelable {
     protected String descripcion;
     protected String apiKey;
     protected String device;
@@ -11,10 +11,10 @@ public class Device implements Parcelable {
     protected int fk;
 
 
-    public Device() {
+    public DeviceJ() {
     }
 
-    public Device(String descripcion, String apiKey, String device, String user, int fk) {
+    public DeviceJ(String descripcion, String apiKey, String device, String user, int fk) {
         this.descripcion = descripcion;
         this.apiKey = apiKey;
         this.device = device;
@@ -62,7 +62,7 @@ public class Device implements Parcelable {
         this.user = user;
     }
 
-    protected Device(Parcel in) {
+    protected DeviceJ(Parcel in) {
         descripcion = in.readString();
         apiKey = in.readString();
         device = in.readString();
@@ -70,15 +70,15 @@ public class Device implements Parcelable {
         fk = in.readInt();
     }
 
-    public static final Creator<Device> CREATOR = new Creator<Device>() {
+    public static final Creator<DeviceJ> CREATOR = new Creator<DeviceJ>() {
         @Override
-        public Device createFromParcel(Parcel in) {
-            return new Device(in);
+        public DeviceJ createFromParcel(Parcel in) {
+            return new DeviceJ(in);
         }
 
         @Override
-        public Device[] newArray(int size) {
-            return new Device[size];
+        public DeviceJ[] newArray(int size) {
+            return new DeviceJ[size];
         }
     };
 
@@ -96,19 +96,19 @@ public class Device implements Parcelable {
         parcel.writeInt(fk);
     }
     /*
-    public static final Creator<Device> CREATOR = new Creator<Device>() {
+    public static final Creator<DeviceJ> CREATOR = new Creator<DeviceJ>() {
         @Override
-        public Device createFromParcel(Parcel in) {
-            return new Device(in);
+        public DeviceJ createFromParcel(Parcel in) {
+            return new DeviceJ(in);
         }
 
         @Override
-        public Device[] newArray(int size) {
-            return new Device[size];
+        public DeviceJ[] newArray(int size) {
+            return new DeviceJ[size];
         }
     };
 
-    protected Device(Parcel in) {
+    protected DeviceJ(Parcel in) {
         String[] data = new String[4];
         in.readStringArray(data);
         this.descripcion = data[0];

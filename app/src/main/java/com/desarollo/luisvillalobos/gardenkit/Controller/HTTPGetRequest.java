@@ -153,7 +153,7 @@ public class HTTPGetRequest extends AsyncTask<String, Void, String> {
                 String _id = bundle.getString("_id");
                 DatabaseAccess databaseAccess = DatabaseAccess.getInstance(context);
                 databaseAccess.open();
-                Device obj = databaseAccess.getDevice(_id);
+                DeviceJ obj = databaseAccess.getDevice(_id);
                 databaseAccess.close();
 
                 //Preparo los datos del listview seleccionado

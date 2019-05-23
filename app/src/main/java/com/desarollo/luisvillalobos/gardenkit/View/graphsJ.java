@@ -24,9 +24,8 @@ import com.android.volley.toolbox.Volley;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DateOperations;
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
-import com.desarollo.luisvillalobos.gardenkit.Model.Data;
 import com.desarollo.luisvillalobos.gardenkit.Model.DataWithStrings;
-import com.desarollo.luisvillalobos.gardenkit.Model.Device;
+import com.desarollo.luisvillalobos.gardenkit.Model.DeviceJ;
 import com.desarollo.luisvillalobos.gardenkit.R;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
@@ -49,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class graphs extends AppCompatActivity {
+public class graphsJ extends AppCompatActivity {
 
     private LineChart graphWet,graphPh/*,graphH20,graphV*/;
     private EditText inChooseDate_to,inChooseDate_from;
@@ -171,7 +170,7 @@ public class graphs extends AppCompatActivity {
         String _id = bundle.getString("_id");
         DatabaseAccess databaseAccess = DatabaseAccess.getInstance(context);
         databaseAccess.open();
-        Device obj = databaseAccess.getDevice(_id);
+        DeviceJ obj = databaseAccess.getDevice(_id);
         databaseAccess.close();
 
         //Preparo los datos del listview seleccionado
@@ -469,7 +468,7 @@ public class graphs extends AppCompatActivity {
     class btnHomeClick implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent(context, ListDevices.class);
+            Intent intent = new Intent(context, ListDevicesJ.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
@@ -479,7 +478,7 @@ public class graphs extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Intent intent = new Intent(context, ListDevices.class);
+            Intent intent = new Intent(context, ListDevicesJ.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);

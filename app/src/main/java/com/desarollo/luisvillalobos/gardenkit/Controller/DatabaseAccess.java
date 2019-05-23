@@ -5,10 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
-import com.desarollo.luisvillalobos.gardenkit.Model.Device;
-import com.desarollo.luisvillalobos.gardenkit.Model.User;
+import com.desarollo.luisvillalobos.gardenkit.Model.DeviceJ;
+import com.desarollo.luisvillalobos.gardenkit.Model.UserJ;
 
 public class DatabaseAccess {
 
@@ -100,12 +99,12 @@ FOREIGN KEY(fk_id) REFERENCES Usuario(_id)
     }
 
 
-    public Device getDevice(String _id) {
+    public DeviceJ getDevice(String _id) {
         try {
             Cursor cursor = database.rawQuery("SELECT * FROM " + TABLE_DEVICE + " WHERE _id = '" + _id + "'", null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                Device device = new Device();
+                DeviceJ device = new DeviceJ();
                 device.setDescripcion(cursor.getString(0));
                 device.setApiKey(cursor.getString(1));
                 device.setDevice(cursor.getString(2));
@@ -170,12 +169,12 @@ FOREIGN KEY(fk_id) REFERENCES Usuario(_id)
         }
     }
 
-    public User getUser(String _id) {
+    public UserJ getUser(String _id) {
         try {
             Cursor cursor = database.rawQuery("SELECT * FROM " + TABLE_USER + " WHERE _id = '" + _id + "'", null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                User user = new User();
+                UserJ user = new UserJ();
                 user.setUsername(cursor.getString(0));
                 user.setPassword(cursor.getString(1));
                 return user;

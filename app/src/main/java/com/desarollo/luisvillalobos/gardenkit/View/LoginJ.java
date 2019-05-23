@@ -16,7 +16,7 @@ import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.R;
 
-public class Login extends AppCompatActivity {
+public class LoginJ extends AppCompatActivity {
 
     private EditText inName, inPassword;
     private Button btnAction, btnLogin, btnSignUp;
@@ -56,7 +56,7 @@ public class Login extends AppCompatActivity {
         editor.commit();*/
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         if (settings.getBoolean("logged", true)) {
-            Intent intent = new Intent(context, ListDevices.class);
+            Intent intent = new Intent(context, ListDevicesJ.class);
             Log.d("Prueba", "paso");
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
@@ -82,7 +82,7 @@ public class Login extends AppCompatActivity {
                         editor.putString("_id", _id);
                         editor.commit();
                         Toast.makeText(getApplicationContext(), "Ha iniciado correctamente sesión", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(context, ListDevices.class);
+                        Intent intent = new Intent(context, ListDevicesJ.class);
                         startActivity(intent);
                     } else {
                         Toast.makeText(getApplicationContext(), "Los datos son incorrectos", Toast.LENGTH_SHORT).show();

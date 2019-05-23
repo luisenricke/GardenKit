@@ -51,7 +51,7 @@ class Device {
     }
 
     companion object {
-        const val TABLE_NAME = "Device"
+        const val TABLE_NAME = "DeviceJ"
 
         const val COLUMN_ID = "_id"
         const val COLUMN_NAME = "name"

@@ -1,9 +1,7 @@
 package com.desarollo.luisvillalobos.gardenkit.View;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -11,21 +9,21 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.desarollo.luisvillalobos.gardenkit.Activity.Login;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DeviceCursorAdapter;
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
-import com.desarollo.luisvillalobos.gardenkit.Model.Device;
+import com.desarollo.luisvillalobos.gardenkit.Model.DeviceJ;
 import com.desarollo.luisvillalobos.gardenkit.R;
 
 
-public class ListDevices extends AppCompatActivity {
+public class ListDevicesJ extends AppCompatActivity {
 
     private ListView lvDevice;
     private FloatingActionButton btnLogOut, btnAdd, btnHome;
@@ -50,7 +48,7 @@ public class ListDevices extends AppCompatActivity {
             editor.remove("_id");
             editor.commit();
 
-            Intent intent = new Intent(context, Login.class);
+            Intent intent = new Intent(context, com.desarollo.luisvillalobos.gardenkit.Activity.Login.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
@@ -114,7 +112,7 @@ public class ListDevices extends AppCompatActivity {
             TextView lblUser = view.findViewById(R.id.lblUser);
 
             String _id = databaseAccess.getDevice(lblDescription.getText().toString(), lblApikey.getText().toString(), lblDevice.getText().toString(), lblUser.getText().toString(), fk);
-            Intent intent = new Intent(context, graphs.class);
+            Intent intent = new Intent(context, graphsJ.class);
             intent.putExtra("_id", _id);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
@@ -125,7 +123,7 @@ public class ListDevices extends AppCompatActivity {
 
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent(context, FormDevice.class);
+            Intent intent = new Intent(context, FormDeviceJ.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             startActivityForResult(intent, 1);
         }
@@ -152,7 +150,7 @@ public class ListDevices extends AppCompatActivity {
 
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
-                Device device = data.getParcelableExtra("object");
+                DeviceJ device = data.getParcelableExtra("object");
                 databaseAccess = DatabaseAccess.getInstance(this);
                 databaseAccess.open();
                 databaseAccess.setDevice(device.getDescripcion(), device.getApiKey(), device.getDevice(), device.getUser(), fk);
