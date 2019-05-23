@@ -1,6 +1,12 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+
+def DB_NAME = '"' + DB + '"' ?: "'Define el nombre de la base de datos'"
+def DB_PASSWORD = '"' + DB_PASSWORD + '"' ?: "'No existe la contraseña de la base de datos'"
+def STRING = 'String'
+
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -10,6 +16,13 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField(STRING, "DB_NAME", DB_NAME)
+        buildConfigField(STRING, "DB_PASSWORD", DB_PASSWORD)
+
+        manifestPlaceholders = [
+                DB_NAME    : DB_NAME,
+                DB_PASSWORD: DB_PASSWORD
+        ]
     }
     buildTypes {
         release {
