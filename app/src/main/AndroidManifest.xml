@@ -28,7 +28,7 @@
         </activity>
         <activity android:name=".View.FormDeviceJ" />
         <activity android:name=".View.graphsJ" />
-        <activity android:name=".View.ListDevicesJ"></activity>
+        <activity android:name=".Activity.ListDevices"></activity>
     </application>
 
 </manifest>
