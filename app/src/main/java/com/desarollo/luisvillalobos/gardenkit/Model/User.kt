@@ -32,6 +32,11 @@ class User {
         this.rol = rol
     }
 
+    constructor(username: String?, password: String?) {
+        this.username = username
+        this.password = password
+    }
+
     companion object {
         const val TABLE_NAME = "UserJ"
 
@@ -57,28 +62,26 @@ class User {
                 ")"
                 )
 
-        fun fillTable(context: Context) {
-            DBHelper.openDB(context)
-            //Inizialize table
-            createUser(context,
+        fun fillTable() {
+            //Initialize table
+            createUser(
                     User("superadmin@superadmin.com",
                             "superadmin",
                             "superadmin",
                             1))
-            createUser(context,
+            createUser(
                     User("admin@admin.com",
                             "admin",
                             "admin",
                             2))
-            createUser(context,
+            createUser(
                     User("test@test.com",
                             "test",
                             "test",
                             3))
-            DBHelper.closeDB()
         }
 
-        fun createUser(context: Context, user: User) {
+        fun createUser(user: User): Boolean {
             //Check and prepare values
             var newRow = ContentValues()
             newRow.put(COLUMN_EMAIL, user.email)
@@ -87,24 +90,20 @@ class User {
             newRow.put(COLUMN_ROL, user.rol)
 
             //Execute SQL statement
-            DBHelper.openDB(context)
             try {
-                DBHelper.database!!.insertWithOnConflict(TABLE_NAME,
+                return DBHelper.database!!.insertWithOnConflict(TABLE_NAME,
                         null,
                         newRow,
-                        SQLiteDatabase.CONFLICT_ROLLBACK)
+                        SQLiteDatabase.CONFLICT_ROLLBACK) != -1L
             } catch (e: SQLiteException) {
                 e.printStackTrace()
-                //Toast.makeText(context, "El usuario ya ha sido registrado", Toast.LENGTH_LONG).show()
-            } finally {
-                DBHelper.closeDB()
             }
+            return false
         }
 
-        fun readUser(context: Context, id: Int): User? {
+        fun readUser(id: Int): User? {
             var user = User()
             var cursor: Cursor? = null
-            DBHelper.openDB(context)
             try {
                 cursor = DBHelper.database!!.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID = ? ", arrayOf(id.toString()))
                 cursor?.moveToFirst()
@@ -115,39 +114,35 @@ class User {
                 user.rol = cursor.getInt(4)
             } catch (e: Exception) {
                 e.printStackTrace()
-                //Toast.makeText(context, "El usuario con el $id no se encuentra registrado", Toast.LENGTH_LONG).show()
             } finally {
                 cursor?.close()
-                DBHelper.closeDB()
             }
             return user
         }
 
-        fun readUser(context: Context, user: User): String? {
+        fun readUser(user: User): String? {
             var id: String? = null
             var cursor: Cursor? = null
-            DBHelper.openDB(context)
             try {
-                if (user.username != null && user.password != null)
-                    cursor = DBHelper.database!!.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN_USERNAME = ? AND $COLUMN_PASSWORD = ?", arrayOf(user.username, user.password))
                 if (user.username != null)
                     cursor = DBHelper.database!!.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN_USERNAME = ? ", arrayOf(user.username))
+
+                if (user.username != null && user.password != null)
+                    cursor = DBHelper.database!!.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN_USERNAME = ? AND $COLUMN_PASSWORD = ?", arrayOf(user.username, user.password))
+
                 cursor?.moveToFirst()
                 id = cursor?.getString(0)
             } catch (e: Exception) {
                 e.printStackTrace()
-                //Toast.makeText(context, "El usuario $username no se encuentra registrado", Toast.LENGTH_LONG).show()
             } finally {
                 cursor?.close()
-                DBHelper.closeDB()
             }
             return id
         }
 
-        fun readUsersWithPermission(context: Context, rol: Int): List<User>? {
+        fun readUsersWithPermission(rol: Int): List<User>? {
             var userList = ArrayList<User>()
             var cursor: Cursor? = null
-            DBHelper.openDB(context)
             try {
                 cursor = DBHelper.database!!.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ROL >= ? ", arrayOf(rol.toString()))
                 cursor.moveToFirst()
@@ -163,19 +158,15 @@ class User {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                //Toast.makeText(context, "No hay ningun usuario registrado", Toast.LENGTH_LONG).show()
             } finally {
                 cursor?.close()
-                DBHelper.closeDB()
             }
             return userList
         }
 
-        // TODO: Validar si hay los mismo campos
-        fun updateUser(context: Context, user: User?): Boolean {
-            val userCheck: User? = readUser(context, user!!.id)
+        fun updateUser(user: User?): Boolean {
+            val userCheck: User? = readUser(user!!.id)
             var values = ContentValues()
-            DBHelper.openDB(context)
             if (user.id == 0 && userCheck != null)
                 return false
             if (user.email != null)
@@ -190,45 +181,34 @@ class User {
                 return DBHelper.database!!.updateWithOnConflict(TABLE_NAME, values, "$COLUMN_ID = ? ", arrayOf(user.id.toString()), SQLiteDatabase.CONFLICT_ROLLBACK) > 0
             } catch (e: SQLiteException) {
                 e.printStackTrace()
-            } finally {
-                DBHelper.closeDB()
             }
             return false
         }
 
-        fun deleteUser(context: Context, id: Int): Boolean {
-            DBHelper.openDB(context)
+        fun deleteUser(id: Int): Boolean {
             try {
                 return DBHelper.database!!.delete(User.TABLE_NAME, "$COLUMN_ID = ? ", arrayOf(id.toString())) > 0
             } catch (e: SQLiteException) {
                 e.printStackTrace()
-            } finally {
-                DBHelper.closeDB()
             }
             return false
         }
 
-        fun deleteAllUser(context: Context): Boolean {
-            DBHelper.openDB(context)
+        fun deleteAllUser(): Boolean {
             try {
                 return DBHelper.database!!.delete(User.TABLE_NAME, "$COLUMN_ID > ? ", arrayOf("0")) > 0
             } catch (e: SQLiteException) {
                 e.printStackTrace()
-            } finally {
-                DBHelper.closeDB()
             }
             return false
         }
 
-        fun getCount(context: Context): Long {
-            DBHelper.openDB(context)
+        fun getCount(): Long {
             var count: Long = 0
             try {
                 count = DatabaseUtils.queryNumEntries(DBHelper.database!!, TABLE_NAME)
             } catch (e: KotlinNullPointerException) {
                 e.printStackTrace()
-            } finally {
-                DBHelper.closeDB()
             }
             return count
         }

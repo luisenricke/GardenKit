@@ -1,132 +1,148 @@
 package com.desarollo.luisvillalobos.gardenkit.Activity
 
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.content.res.Resources
+import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
+import android.support.v4.content.res.ResourcesCompat
 import android.util.Log
+import android.view.View
+import android.widget.Toast
+import com.desarollo.luisvillalobos.gardenkit.Controller.DBHelper
+import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity
+
 import com.desarollo.luisvillalobos.gardenkit.Model.Device
 import com.desarollo.luisvillalobos.gardenkit.Model.User
 import com.desarollo.luisvillalobos.gardenkit.R
+import com.desarollo.luisvillalobos.gardenkit.View.ListDevicesJ
+import kotlinx.android.synthetic.main.login.*
 import net.sqlcipher.database.SQLiteDatabase
 
-class Login : AppCompatActivity() {
+class Login : AppCompatActivity(), View.OnClickListener {
+
+    companion object {
+        const val PREFS_NAME: String = "SGKLog"
+        var actionSelectedOption: Boolean = true//true if select login and false if select signup
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
-        setup(baseContext)
-        testDevice()
+        setup()
+        /*
+        var settingss: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        var editor:SharedPreferences.Editor = settingss.edit();
+        editor.putBoolean("logged", false)
+        editor.remove("id")
+        editor.commit()*/
 
+        val settings: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (settings.getBoolean("logged", true)) {
+            val intent = Intent(baseContext, ListDevices::class.java) //TODO: Corregir el intent
+            Log.e("Bitzero", "Paso el login")
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            startActivity(intent)
+        }
     }
 
-    private fun setup(baseContext: Context): Unit {
+    override fun onStart() {
+        DBHelper.openDB(baseContext)
+        super.onStart()
+    }
+
+    override fun onStop() {
+        DBHelper.closeDB()
+        super.onStop()
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.btn_login -> loginSignUpBtnClick()
+            R.id.btn_action -> actionBtnClick()
+            R.id.btn_signup -> signUpBtnClick()
+        }
+    }
+
+    private fun setup() {
+        //Screens
+        SetUpActivity.hiderActionBar(this)
+        SetUpActivity.hideStatusBar(this)
+        SetUpActivity.hideSoftKeyboard(this)
+        SetUpActivity.setWindowPortrait(this)
+
+        //Listeners
+        btn_action.setOnClickListener(this)
+        btn_login.setOnClickListener(this)
+        btn_signup.setOnClickListener(this)
+
+        //Database
         SQLiteDatabase.loadLibs(this)
+        DBHelper.openDB(baseContext)
 
-        if (User.getCount(baseContext) <= 2L)
-            User.fillTable(baseContext)
-        if (Device.getCount(baseContext) <= 1L)
-            Device.fillTable(baseContext)
+        if (User.getCount() <= 2L)
+            User.fillTable()
+        if (Device.getCount() <= 1L)
+            Device.fillTable()
     }
 
-    private fun testDevice(): Unit {
-        var device = Device.readDevice(baseContext, 1)
-        Log.e("Bitzero", "nombre: ${device?.name} \n" +
-                "dispositivo: ${device?.device_request} \n" +
-                "api: ${device?.apikey_request} \n" +
-                "descripcion: ${device?.description} \n" +
-                "idUsuario: ${device?.idUser} \n")
-
-        device = Device()
-        device.name = "Dispositivo 1"
-        device.device_request = "device@dev_bitbot_test.dev_bitbot_test"
-        device.apikey_request = "d8a08f2ed52ec23463402769c3b0ccb6a8e4c6fa4bb6ea77f320cdbf553a2521"
-        device.description = "DEV"
-        device.idUser = 3
-        var log = Device.readDevice(baseContext, device)
-        Log.e("Bitzero", "key: $log")
-
-        Device.readDevices(baseContext)?.forEachIndexed { index, device ->
-            Log.e("Bitzero", "nombre: ${device.name} \n" +
-                    "dispositivo: ${device.device_request} \n" +
-                    "api: ${device?.apikey_request} \n" +
-                    "descripcion: ${device.description} \n" +
-                    "idUsuario: ${device.idUser} \n" +
-                    "indice: $index")
+    private fun actionBtnClick() {
+        if (in_name.text.isEmpty() && in_password.text.isEmpty()) {
+            toast("Está vacio los campos de el usuario y/o contraseña")
+            return
         }
-
-        Device.readDevicesWithUser(baseContext, 3)?.forEachIndexed { index, device ->
-            Log.e("Bitzero", "nombre: ${device.name} \n" +
-                    "dispositivo: ${device.device_request} \n" +
-                    "api: ${device.apikey_request} \n" +
-                    "descripcion: ${device.description} \n" +
-                    "idUsuario: ${device.idUser} \n" +
-                    "indice: $index")
+        if (actionSelectedOption) {
+            val id: String? = User.readUser(User(in_name.text.toString(), in_password.text.toString()))
+            if (id != null) {
+                var settings: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                var editor: SharedPreferences.Editor = settings.edit().putBoolean("logged", true).putString("user_id", id)
+                editor.apply()
+                toast("Ha iniciado correctamente sesión")
+                val intent = Intent(this, ListDevices::class.java)//TODO: fix el intent
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                startActivity(intent)
+            } else
+                toast("Los datos son incorrectos")
+        } else {
+            if (in_name.text.isNotEmpty() && in_password.text.trim().length > 4) {// FIXME: create function to validate fields
+                var user = User("", in_name.text.toString(), in_password.text.toString(), 3)//FIXME: Validate email
+                if (User.createUser(user)) {
+                    toast("Se ha registrado correctamente")
+                    btn_login.performClick()
+                } else
+                    toast("El usuario ya se encuentra registrado")
+            } else
+                toast("El usuario y/o la contraseña son muy cortos")
         }
-
-        device = Device()
-        device.id = 2
-        device.apikey_request = "Se cambio"
-        device.device_request = "Se cambio"
-
-        Log.e("Bitzero", "Se actualizo ${Device.updateDevice(baseContext, device)}")
-        device = Device.readDevice(baseContext, 2)
-        Log.e("Bitzero", "nombre: ${device?.name} \n" +
-                "dispositivo: ${device?.device_request} \n" +
-                "api: ${device?.apikey_request} \n" +
-                "descripcion: ${device?.description} \n" +
-                "idUsuario: ${device?.idUser} \n")
-
-        Log.e("Bitzero", "Se elimino ${Device.deleteDevice(baseContext, 2)}")
-        Log.e("Bitzero", "No : ${Device.getCount(baseContext)}")
-        Log.e("Bitzero", "Se elimino todo ${Device.deleteAllDevices(baseContext)}")
-        Log.e("Bitzero", "No : ${Device.getCount(baseContext)}")
     }
 
-    private fun testUser(): Unit {
-        var user: User? = User.readUser(baseContext, 1)
-        Log.e("Bitzero", "email: ${user?.email} " +
-                "usuario: ${user?.username} \n" +
-                "password: ${user?.password} \n" +
-                "rol: ${user?.rol} \n")
+    private fun loginSignUpBtnClick() {
 
-        user = User.readUser(baseContext, 2)
-        Log.e("Bitzero", "email: ${user?.email} \n" +
-                "usuario: ${user?.username} \n" +
-                "password: ${user?.password} \n" +
-                "rol: ${user?.rol} \n")
-
-        user = User.readUser(baseContext, 3)
-        Log.e("Bitzero", "email: ${user?.email} \n" +
-                "usuario: ${user?.username} \n" +
-                "password: ${user?.password} \n" +
-                "rol: ${user?.rol} \n")
-
-        user = User()
-        user.username = "test"
-        var log = User.readUser(baseContext, user)
-        Log.e("Bitzero", "key: $log")
-
-        User.readUsersWithPermission(baseContext, 1)?.forEachIndexed { index, user ->
-            Log.e("Bitzero", "email: ${user.email} " +
-                    "usuario: ${user.username} \n" +
-                    "password: ${user.password} \n" +
-                    "rol: ${user.rol} \n" +
-                    "Indice: $index")
+        if (!actionSelectedOption) {
+            in_name.setText("")
+            in_password.setText("")
+            btn_login.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
+            btn_signup.setTextColor(ContextCompat.getColor(this, R.color.black))
+            btn_action.setText("Iniciar")
+            actionSelectedOption = true
         }
+    }
 
-        user = User()
-        user.id = 3
-        user.password = "contra"
-        User.updateUser(baseContext, user)
-        user = User.readUser(baseContext, user.id)!!
-        Log.e("Bitzero", "email: ${user?.email} \n" +
-                "usuario: ${user?.username} \n" +
-                "password: ${user?.password} \n" +
-                "rol: ${user?.rol} \n")
+    private fun signUpBtnClick() {
+        if (actionSelectedOption) {
+            in_name.setText("")
+            in_password.setText("")
+            btn_signup.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
+            btn_login.setTextColor(ContextCompat.getColor(this, R.color.black))
+            btn_action.setText("Registrar")
+            actionSelectedOption = false
+        }
+    }
 
-        User.deleteUser(baseContext, 3)
-        Log.e("Bitzero", "No : ${User.getCount(baseContext)}")
-        User.deleteAllUser(baseContext)
-        Log.e("Bitzero", "No : ${User.getCount(baseContext)}")
+    private fun toast(message: String) {
+        Toast.makeText(baseContext, "$message", Toast.LENGTH_LONG).show()
     }
 }
