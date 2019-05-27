@@ -33,18 +33,19 @@ class Login : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
         setup()
-        /*
-        var settingss: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        var editor:SharedPreferences.Editor = settingss.edit();
-        editor.putBoolean("logged", false)
-        editor.remove("id")
-        editor.commit()*/
 
+/*
+        var settingss: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        var editor: SharedPreferences.Editor = settingss.edit()
+        editor.putBoolean("logged", false)
+        editor.remove("user_id")
+        editor.apply()
+*/
         val settings: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         if (settings.getBoolean("logged", true)) {
-            val intent = Intent(baseContext, ListDevices::class.java) //TODO: Corregir el intent
+            val intent = Intent(baseContext, ListDevices::class.java) //FIXME: Check flags of intent
             Log.e("Bitzero", "Paso el login")
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
         }
     }
@@ -102,7 +103,7 @@ class Login : AppCompatActivity(), View.OnClickListener {
                 editor.apply()
                 toast("Ha iniciado correctamente sesión")
                 val intent = Intent(this, ListDevices::class.java)//TODO: fix el intent
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 startActivity(intent)
             } else
                 toast("Los datos son incorrectos")
