@@ -1,5 +1,6 @@
 package com.desarollo.luisvillalobos.gardenkit.Controller
 
+import android.app.Application
 import android.content.Context
 import com.desarollo.luisvillalobos.gardenkit.BuildConfig
 import com.desarollo.luisvillalobos.gardenkit.Model.Device
@@ -8,7 +9,7 @@ import com.desarollo.luisvillalobos.gardenkit.Model.User
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
 
-private var instance: DBHelper? = null
+
 private const val DB_PASSWORD = BuildConfig.DB_PASSWORD
 private const val DB_NAME = BuildConfig.DB_NAME
 private const val DB_VERSION = 8
@@ -16,22 +17,31 @@ private const val DB_VERSION = 8
 
 class DBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
-    companion object {
-        var database: SQLiteDatabase? = null
 
-        @Synchronized
-        fun getInstance(context: Context): DBHelper {
-            if (instance == null) {
-                instance = DBHelper(context)
-            }
-            return instance!!
+    companion object {
+
+
+        @Volatile
+        private var instance: DBHelper? = null
+
+        var database: SQLiteDatabase? = null
+        /*
+                private fun getInstance(context: Context): DBHelper {
+                    if (instance == null) {
+                        instance = DBHelper(context)
+                    }
+                    return instance
+                }
+        */
+        private fun getInstance(context: Context): DBHelper = instance ?: synchronized(this) {
+            instance ?: DBHelper(context).also { instance = it }
         }
 
         fun openDB(context: Context) {
             database = DBHelper.getInstance(context).getWritableDatabase(DB_PASSWORD)
         }
 
-        fun closeDB(): Unit {
+        fun closeDB() {
             if (database != null) {
                 database!!.close()
             }

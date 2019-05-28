@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.Color
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -33,6 +34,7 @@ class Login : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
         setup()
+        Log.e("Bitzero db onCreate LO"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
 
 /*
         var settingss: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -44,21 +46,34 @@ class Login : AppCompatActivity(), View.OnClickListener {
         val settings: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         if (settings.getBoolean("logged", true)) {
             val intent = Intent(baseContext, ListDevices::class.java) //FIXME: Check flags of intent
-            Log.e("Bitzero", "Paso el login")
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
+            //finish()
         }
     }
 
-    override fun onStart() {
+    /*
+        override fun onStart() {
+            DBHelper.openDB(baseContext)
+            super.onStart()
+        }
+    */
+
+    override fun onResume() {
+        Log.e("Bitzero db onResum 1 LO"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
         DBHelper.openDB(baseContext)
-        super.onStart()
+        Log.e("Bitzero db onResum 2 LO"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
+        super.onResume()
     }
 
-    override fun onStop() {
+    override fun onPause() {
+        Log.e("Bitzero db onPause 1 LO"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
         DBHelper.closeDB()
-        super.onStop()
+        Log.e("Bitzero db onPause 2 LO"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
+        super.onPause()
     }
+
 
     override fun onClick(v: View?) {
         when (v?.id) {
@@ -81,7 +96,7 @@ class Login : AppCompatActivity(), View.OnClickListener {
         btn_signup.setOnClickListener(this)
 
         //Database
-        SQLiteDatabase.loadLibs(this)
+        SQLiteDatabase.loadLibs(baseContext)
         DBHelper.openDB(baseContext)
 
         if (User.getCount() <= 2L)
@@ -96,15 +111,22 @@ class Login : AppCompatActivity(), View.OnClickListener {
             return
         }
         if (actionSelectedOption) {
-            val id: String? = User.readUser(User(in_name.text.toString(), in_password.text.toString()))
+            //val id: String? = User.readUser(User(in_name.text.toString(), in_password.text.toString()))
+            Log.e("Bitzero db"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
+            val id: String? = User.readUser(User("admin", "admin"))
+            log("$id: ${in_name.text} - ${in_password.text}")
             if (id != null) {
                 var settings: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 var editor: SharedPreferences.Editor = settings.edit().putBoolean("logged", true).putString("user_id", id)
                 editor.apply()
                 toast("Ha iniciado correctamente sesión")
-                val intent = Intent(this, ListDevices::class.java)//TODO: fix el intent
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                val intent = Intent(baseContext, ListDevices::class.java)//TODO: fix el intent
+                //finish()
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 startActivity(intent)
+                //finish()
             } else
                 toast("Los datos son incorrectos")
         } else {
@@ -146,4 +168,9 @@ class Login : AppCompatActivity(), View.OnClickListener {
     private fun toast(message: String) {
         Toast.makeText(baseContext, "$message", Toast.LENGTH_LONG).show()
     }
+
+    private fun log(message: String) {
+        Log.e("BitZero", "$message")
+    }
+
 }
