@@ -3,14 +3,9 @@ package com.desarollo.luisvillalobos.gardenkit.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.Resources
-import android.graphics.Color
-import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
-import android.support.v4.content.res.ResourcesCompat
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.desarollo.luisvillalobos.gardenkit.Controller.DBHelper
@@ -19,7 +14,6 @@ import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity
 import com.desarollo.luisvillalobos.gardenkit.Model.Device
 import com.desarollo.luisvillalobos.gardenkit.Model.User
 import com.desarollo.luisvillalobos.gardenkit.R
-import com.desarollo.luisvillalobos.gardenkit.View.ListDevicesJ
 import kotlinx.android.synthetic.main.login.*
 import net.sqlcipher.database.SQLiteDatabase
 
@@ -27,15 +21,14 @@ class Login : AppCompatActivity(), View.OnClickListener {
 
     companion object {
         const val PREFS_NAME: String = "SGKLog"
-        var actionSelectedOption: Boolean = true//true if select login and false if select signup
+
     }
+    private var actionSelectedOption: Boolean = true//true if select login and false if select signup
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
         setup()
-        Log.e("Bitzero db onCreate LO"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
-
 /*
         var settingss: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         var editor: SharedPreferences.Editor = settingss.edit()
@@ -49,31 +42,18 @@ class Login : AppCompatActivity(), View.OnClickListener {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
-            //finish()
         }
     }
 
-    /*
-        override fun onStart() {
-            DBHelper.openDB(baseContext)
-            super.onStart()
-        }
-    */
-
     override fun onResume() {
-        Log.e("Bitzero db onResum 1 LO"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
         DBHelper.openDB(baseContext)
-        Log.e("Bitzero db onResum 2 LO"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
         super.onResume()
     }
 
     override fun onPause() {
-        Log.e("Bitzero db onPause 1 LO"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
         DBHelper.closeDB()
-        Log.e("Bitzero db onPause 2 LO"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
         super.onPause()
     }
-
 
     override fun onClick(v: View?) {
         when (v?.id) {
@@ -84,7 +64,7 @@ class Login : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setup() {
-        //Screens
+        //Screen
         SetUpActivity.hiderActionBar(this)
         SetUpActivity.hideStatusBar(this)
         SetUpActivity.hideSoftKeyboard(this)
@@ -110,23 +90,19 @@ class Login : AppCompatActivity(), View.OnClickListener {
             toast("Está vacio los campos de el usuario y/o contraseña")
             return
         }
+
         if (actionSelectedOption) {
-            //val id: String? = User.readUser(User(in_name.text.toString(), in_password.text.toString()))
-            Log.e("Bitzero db"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
-            val id: String? = User.readUser(User("admin", "admin"))
-            log("$id: ${in_name.text} - ${in_password.text}")
+            val id: String? = User.readUser(User(in_name.text.toString(), in_password.text.toString()))
             if (id != null) {
                 var settings: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 var editor: SharedPreferences.Editor = settings.edit().putBoolean("logged", true).putString("user_id", id)
                 editor.apply()
                 toast("Ha iniciado correctamente sesión")
-                val intent = Intent(baseContext, ListDevices::class.java)//TODO: fix el intent
-                //finish()
+                val intent = Intent(baseContext, ListDevices::class.java)//FIXME: Check flags of intents
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 startActivity(intent)
-                //finish()
             } else
                 toast("Los datos son incorrectos")
         } else {
@@ -143,7 +119,6 @@ class Login : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun loginSignUpBtnClick() {
-
         if (!actionSelectedOption) {
             in_name.setText("")
             in_password.setText("")
@@ -168,9 +143,4 @@ class Login : AppCompatActivity(), View.OnClickListener {
     private fun toast(message: String) {
         Toast.makeText(baseContext, "$message", Toast.LENGTH_LONG).show()
     }
-
-    private fun log(message: String) {
-        Log.e("BitZero", "$message")
-    }
-
 }

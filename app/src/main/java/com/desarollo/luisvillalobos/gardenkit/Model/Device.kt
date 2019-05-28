@@ -1,7 +1,6 @@
 package com.desarollo.luisvillalobos.gardenkit.Model
 
 import android.content.ContentValues
-import android.content.Context
 import com.desarollo.luisvillalobos.gardenkit.Controller.DBHelper
 import net.sqlcipher.Cursor
 import net.sqlcipher.DatabaseUtils

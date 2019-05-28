@@ -3,7 +3,6 @@ package com.desarollo.luisvillalobos.gardenkit.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -15,7 +14,6 @@ import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity
 import com.desarollo.luisvillalobos.gardenkit.Model.Device
 import com.desarollo.luisvillalobos.gardenkit.R
 import kotlinx.android.synthetic.main.list_devices.*
-import net.sqlcipher.database.SQLiteDatabase
 
 class ListDevices : AppCompatActivity(), View.OnClickListener {
 
@@ -25,8 +23,6 @@ class ListDevices : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.list_devices)
         setup()
-
-        Log.e("Bitzero db onCreate LI", " instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
 
         try {
             key = Integer.parseInt("" + getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE).getString("user_id", null))
@@ -43,42 +39,22 @@ class ListDevices : AppCompatActivity(), View.OnClickListener {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
         }
-        log(key.toString())
-
 
         var listDevices: ArrayList<Device>? = Device.readDevicesWithUser(key)
 
-        listDevices?.forEachIndexed { index, device ->
-            log("$index - ${device.id}: ${device.name} ")
-        }
-
-/*        var deviceAdapter = DeviceAdapter(this, listDevices!!)
+/*      var deviceAdapter = DeviceAdapter(this, listDevices!!)
         lvDevice.adapter = deviceAdapter
 */
     }
 
-
-    /*
-        override fun onStart() {
-            super.onStart()
-            Log.e("Bitzero db onStart 1 LI"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
-            DBHelper.openDB(baseContext)
-            Log.e("Bitzero db onStart 2 LI"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
-        }
-    */
     override fun onResume() {
-        Log.e("Bitzero db onResum 1 LI"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
         DBHelper.openDB(baseContext)
-        Log.e("Bitzero db onResum 2 LI"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
         super.onResume()
     }
 
     override fun onPause() {
-        Log.e("Bitzero db onPause 1 LI"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
         DBHelper.closeDB()
-        Log.e("Bitzero db onPause 2 LI"," instance: ${DBHelper.hashCode()} database: ${DBHelper.database?.isOpen}")
         super.onPause()
-
     }
 
     override fun onClick(v: View?) {
@@ -90,7 +66,7 @@ class ListDevices : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setup() {
-        //Screens
+        //Screen
         SetUpActivity.hiderActionBar(this)
         SetUpActivity.hideStatusBar(this)
         SetUpActivity.hideSoftKeyboard(this)
@@ -115,7 +91,6 @@ class ListDevices : AppCompatActivity(), View.OnClickListener {
         //intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         finish()
         startActivity(intent)
-
     }
 
     private fun addBtnClick() {}
