@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.desarollo.luisvillalobos.gardenkit.Activity.Login;
-import com.desarollo.luisvillalobos.gardenkit.Controller.DeviceCursorAdapter;
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
 import com.desarollo.luisvillalobos.gardenkit.Model.DeviceJ;
@@ -67,8 +66,8 @@ public class ListDevicesJ extends AppCompatActivity {
         databaseAccess.open();
         Cursor cursor = databaseAccess.getDevices(fk);
         cursor.moveToFirst();
-        DeviceCursorAdapter adapter = new DeviceCursorAdapter(context, cursor);
-        lvDevice.setAdapter(adapter);
+        //DeviceCursorAdapterJ adapter = new DeviceCursorAdapterJ(context, cursor);
+        //lvDevice.setAdapter(adapter);
 
         lvDevice.setOnItemClickListener(new lvDeviceClick());
         lvDevice.setOnItemLongClickListener(new lvDeviceLongClick());
@@ -156,8 +155,8 @@ public class ListDevicesJ extends AppCompatActivity {
                 databaseAccess.setDevice(device.getDescripcion(), device.getApiKey(), device.getDevice(), device.getUser(), fk);
 
                 Cursor cursor = databaseAccess.getDevices(fk);
-                DeviceCursorAdapter adapter = new DeviceCursorAdapter(context, cursor);
-                lvDevice.setAdapter(adapter);
+                //DeviceCursorAdapterJ adapter = new DeviceCursorAdapterJ(context, cursor);
+                //lvDevice.setAdapter(adapter);
                 databaseAccess.close();
                 recreate();
                 Toast.makeText(context, "Se ha agredado satisfactoriamente", Toast.LENGTH_LONG).show();
