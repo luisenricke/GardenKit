@@ -24,14 +24,14 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/lblDescription"
+            android:id="@+id/lblUser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="2"
             android:minLines="1"
-            android:paddingLeft="15dp"
+            android:paddingHorizontal="15dp"
             android:paddingTop="15dp"
-            android:text="Descripcion"
+            android:text="Nombre"
             android:textColor="@color/colorPrimary"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -44,9 +44,10 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:minLines="1"
-            android:paddingLeft="15dp"
+            android:paddingHorizontal="15dp"
             android:text="Dispositivo"
-            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:textSize="15sp"
             android:textStyle="italic"
             android:typeface="sans" />
 
@@ -56,26 +57,25 @@
             android:layout_height="wrap_content"
             android:maxLines="2"
             android:minLines="1"
-            android:paddingLeft="15dp"
+            android:paddingHorizontal="15dp"
+            android:textColor="@color/black"
             android:text="ApiKey"
             android:textSize="8sp"
             android:textStyle="italic"
             android:typeface="sans" />
 
         <TextView
-            android:id="@+id/lblUser"
+            android:id="@+id/lblDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="1"
+            android:maxLines="4"
             android:minLines="1"
-            android:paddingLeft="15dp"
+            android:paddingHorizontal="15dp"
             android:paddingBottom="15dp"
-            android:text="Usuario"
-            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:text="Descripción"
+            android:textSize="16sp"
             android:textStyle="normal"
             android:typeface="sans" />
-
     </LinearLayout>
-
-
 </LinearLayout>
