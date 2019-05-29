@@ -82,7 +82,7 @@ class Device {
             createDevice(
                     Device("Dispositivo 2",
                             "device@dev_bitbot_test.dev_bitbot_test",
-                            "TEST",
+                            "d8a08f2ed52ec23463402769c3b0ccb6a8e4c6fa4bb6ea77f320cdbf553a2521",
                             "TEST",
                             2))
         }
@@ -195,6 +195,18 @@ class Device {
                 cursor?.close()
             }
             return deviceList
+        }
+
+        fun readDevicesWithUserCursor(fk_user: Int): Cursor? {
+            var cursor: Cursor? = null
+            try {
+                cursor = DBHelper.database!!.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN_IDUSER = ? ", arrayOf(fk_user.toString()))
+                cursor.moveToFirst()
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return cursor
         }
 
         fun updateDevice(device: Device?): Boolean {
