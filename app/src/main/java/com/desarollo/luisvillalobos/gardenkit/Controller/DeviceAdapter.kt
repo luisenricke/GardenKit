@@ -29,9 +29,8 @@ class DeviceAdapter(internal var context: Context, private var deviceList: Array
         return deviceList.size
     }
 
-    fun update(key:Int){
-        deviceList = Device.readDevicesWithUser(key)!!
-        notifyDataSetChanged()
+    fun add(device:Device){
+        deviceList.add(device)
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {

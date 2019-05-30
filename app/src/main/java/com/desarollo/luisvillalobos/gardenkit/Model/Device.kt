@@ -54,7 +54,7 @@ data class Device(var name: String?, var device_request: String?, var apikey_req
         const val CREATE_TABLE = ("CREATE TABLE " +
                 TABLE_NAME + " (" +
                 COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_NAME + " VARCHAR(50) NOT NULL, " +
+                COLUMN_NAME + " VARCHAR(50) NOT NULL UNIQUE, " +
                 COLUMN_DEVICE_REQUEST + " VARCHAR(100) NOT NULL, " +
                 COLUMN_APIKEY_REQUEST + " VARCHAR(100) NOT NULL, " +
                 COLUMN_DESCRIPTION + " VARCHAR(100) NOT NULL, " +

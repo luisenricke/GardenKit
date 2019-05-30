@@ -20,11 +20,12 @@ import com.desarollo.luisvillalobos.gardenkit.Model.User
 import com.desarollo.luisvillalobos.gardenkit.R
 import kotlinx.android.synthetic.main.list_devices.*
 
-class ListDevices : AppCompatActivity(), View.OnClickListener {
+class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
     private var key: Int = 0
     private lateinit var deviceList: ArrayList<Device>
     private lateinit var deviceAdapter: DeviceAdapter
+    //ADD REQUEST
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,6 +83,14 @@ class ListDevices : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+
+    }
+
+    override fun onItemLongClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long): Boolean {
+        return true
+    }
+
     private fun setup() {
         //Screen
         SetUpActivity.hiderActionBar(this)
@@ -123,11 +132,12 @@ class ListDevices : AppCompatActivity(), View.OnClickListener {
             val device: Device? = data?.extras!!.getParcelable("device")
             DBHelper.openDB(baseContext)
             if (Device.createDevice(device!!)) {
-                deviceAdapter.update(key)
+                deviceAdapter.add(device)
+                deviceAdapter.notifyDataSetChanged()
                 toast("Dispositivo agregado")
-            }
-        } else
-            toast("Los campos no fueron validos")
+            } else
+                toast("El nombre ya ha sido utilizado, intente otro")
+        }
     }
 
     override fun onBackPressed() {
