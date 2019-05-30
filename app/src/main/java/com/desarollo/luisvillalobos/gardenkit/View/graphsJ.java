@@ -21,11 +21,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.desarollo.luisvillalobos.gardenkit.Controller.DatabaseAccess;
 import com.desarollo.luisvillalobos.gardenkit.Controller.DateOperations;
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity;
 import com.desarollo.luisvillalobos.gardenkit.Model.DataWithStrings;
-import com.desarollo.luisvillalobos.gardenkit.Model.DeviceJ;
 import com.desarollo.luisvillalobos.gardenkit.R;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
@@ -168,14 +166,14 @@ public class graphsJ extends AppCompatActivity {
         //Agarro el dispositivo de la base de datos
         Bundle bundle = getIntent().getExtras();
         String _id = bundle.getString("_id");
-        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(context);
+        /*DatabaseAccess databaseAccess = DatabaseAccess.getInstance(context);
         databaseAccess.open();
         DeviceJ obj = databaseAccess.getDevice(_id);
         databaseAccess.close();
-
+*/
         //Preparo los datos del listview seleccionado
-        String device = obj.getDevice();
-        final String apiKey = obj.getApiKey();
+        String device = "";//obj.getDevice();
+        final String apiKey ="";// obj.getApiKey();
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
                 JSON_URL + DEVICE + device
@@ -468,20 +466,20 @@ public class graphsJ extends AppCompatActivity {
     class btnHomeClick implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent(context, ListDevicesJ.class);
+            /*Intent intent = new Intent(context, ListDevicesJ.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);
+            startActivity(intent);*/
         }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Intent intent = new Intent(context, ListDevicesJ.class);
+            /*Intent intent = new Intent(context, ListDevicesJ.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);
+            startActivity(intent);*/
             return true;
         }
         return super.onKeyDown(keyCode, event);
