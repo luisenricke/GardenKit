@@ -1,55 +1,47 @@
 package com.desarollo.luisvillalobos.gardenkit.Model
 
 import android.content.ContentValues
+import android.os.Parcel
+import android.os.Parcelable
 import com.desarollo.luisvillalobos.gardenkit.Controller.DBHelper
 import net.sqlcipher.Cursor
 import net.sqlcipher.DatabaseUtils
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteException
 
-class Device {
+data class Device(var name: String?, var device_request: String?, var apikey_request: String?, var description: String?, var idUser: Int) : Parcelable {
+
     var id: Int = 0
-    var name: String? = null
-    var device_request: String? = null
-    var apikey_request: String? = null
-    var description: String? = null
-    var idUser: Int = 0
 
-    constructor()
+    constructor(parcel: Parcel) : this(parcel.readString(), parcel.readString(), parcel.readString(), parcel.readString(), parcel.readInt())
 
-    constructor(name: String?, device_request: String?, apikey_request: String?, description: String?) {
-        this.name = name
-        this.device_request = device_request
-        this.apikey_request = apikey_request
-        this.description = description
+    override fun writeToParcel(dest: Parcel?, flags: Int) {
+        dest?.writeString(name)
+        dest?.writeString(device_request)
+        dest?.writeString(apikey_request)
+        dest?.writeString(description)
+        dest?.writeInt(idUser)
     }
 
-    constructor(name: String?, device_request: String?, apikey_request: String?, description: String?, idUser: Int) {
-        this.name = name
-        this.device_request = device_request
-        this.apikey_request = apikey_request
-        this.description = description
-        this.idUser = idUser
+    override fun describeContents(): Int {
+        return 0
     }
 
-    constructor(id: Int, name: String?, device_request: String?, apikey_request: String?, description: String?) {
-        this.id = id
-        this.name = name
-        this.device_request = device_request
-        this.apikey_request = apikey_request
-        this.description = description
-    }
-
-    constructor(id: Int, name: String?, device_request: String?, apikey_request: String?, description: String?, idUser: Int) {
-        this.id = id
-        this.name = name
-        this.device_request = device_request
-        this.apikey_request = apikey_request
-        this.description = description
-        this.idUser = idUser
-    }
+    constructor() : this(null, null, null, null, 0)
 
     companion object {
+
+        @JvmField
+        val CREATOR = object : Parcelable.Creator<Device> {
+            override fun createFromParcel(parcel: Parcel): Device {
+                return Device(parcel)
+            }
+
+            override fun newArray(size: Int): Array<Device?> {
+                return arrayOfNulls(size)
+            }
+        }
+
         const val TABLE_NAME = "Device"
 
         const val COLUMN_ID = "_id"
@@ -87,7 +79,7 @@ class Device {
                             2))
         }
 
-        fun createDevice(device: Device) {
+        fun createDevice(device: Device): Boolean {
             //Check and prepare values
             var newRow = ContentValues()
             newRow.put(COLUMN_NAME, device.name)
@@ -98,14 +90,14 @@ class Device {
 
             //Execute SQL statement
             try {
-                DBHelper.database!!.insertWithOnConflict(TABLE_NAME,
+                return DBHelper.database!!.insertWithOnConflict(TABLE_NAME,
                         null,
                         newRow,
-                        SQLiteDatabase.CONFLICT_ROLLBACK)
+                        SQLiteDatabase.CONFLICT_ROLLBACK) != 1L
             } catch (e: SQLiteException) {
                 e.printStackTrace()
-            } finally {
             }
+            return false
         }
 
         fun readDevice(id: Int): Device? {
