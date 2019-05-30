@@ -21,9 +21,12 @@ class Login : AppCompatActivity(), View.OnClickListener {
 
     companion object {
         const val PREFS_NAME: String = "SGKLog"
-
+        const val IS_LOGGED: String = "LOGGED"
+        const val USERID: String = "User_ID"
     }
-    private var actionSelectedOption: Boolean = true//true if select login and false if select signup
+
+    //true if select login and false if select signup
+    private var isLogin: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,30 +39,14 @@ class Login : AppCompatActivity(), View.OnClickListener {
         editor.remove("user_id")
         editor.apply()
 */
+
+        //FIXME: Check no pass if not exist USERID
         val settings: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        if (settings.getBoolean("logged", true)) {
+        if (settings.getBoolean(IS_LOGGED, true)) {
             val intent = Intent(baseContext, ListDevices::class.java) //FIXME: Check flags of intent
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
-        }
-    }
-
-    override fun onResume() {
-        DBHelper.openDB(baseContext)
-        super.onResume()
-    }
-
-    override fun onPause() {
-        DBHelper.closeDB()
-        super.onPause()
-    }
-
-    override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.btn_login -> loginSignUpBtnClick()
-            R.id.btn_action -> actionBtnClick()
-            R.id.btn_signup -> signUpBtnClick()
         }
     }
 
@@ -85,17 +72,28 @@ class Login : AppCompatActivity(), View.OnClickListener {
             Device.fillTable()
     }
 
+    //ClickListeners buttons implementation
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.btn_login -> loginSignUpBtnClick()
+            R.id.btn_action -> actionBtnClick()
+            R.id.btn_signup -> signUpBtnClick()
+        }
+    }
+
     private fun actionBtnClick() {
         if (in_name.text.isEmpty() && in_password.text.isEmpty()) {
             toast("Está vacio los campos de el usuario y/o contraseña")
             return
         }
 
-        if (actionSelectedOption) {
+        if (isLogin) {
             val id: String? = User.readUser(User(in_name.text.toString(), in_password.text.toString()))
             if (id != null) {
                 var settings: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                var editor: SharedPreferences.Editor = settings.edit().putBoolean("logged", true).putString("user_id", id)
+                var editor: SharedPreferences.Editor = settings.edit()
+                        .putBoolean(IS_LOGGED, true)
+                        .putString(USERID, id)
                 editor.apply()
                 toast("Ha iniciado correctamente sesión")
                 val intent = Intent(baseContext, ListDevices::class.java)//FIXME: Check flags of intents
@@ -119,27 +117,39 @@ class Login : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun loginSignUpBtnClick() {
-        if (!actionSelectedOption) {
+        if (!isLogin) {
             in_name.setText("")
             in_password.setText("")
             btn_login.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
             btn_signup.setTextColor(ContextCompat.getColor(this, R.color.black))
             btn_action.setText("Iniciar")
-            actionSelectedOption = true
+            isLogin = true
         }
     }
 
     private fun signUpBtnClick() {
-        if (actionSelectedOption) {
+        if (isLogin) {
             in_name.setText("")
             in_password.setText("")
             btn_signup.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
             btn_login.setTextColor(ContextCompat.getColor(this, R.color.black))
             btn_action.setText("Registrar")
-            actionSelectedOption = false
+            isLogin = false
         }
     }
 
+    //Cycle of life from Activity
+    override fun onResume() {
+        DBHelper.openDB(baseContext)
+        super.onResume()
+    }
+
+    override fun onPause() {
+        DBHelper.closeDB()
+        super.onPause()
+    }
+
+    //Message
     private fun toast(message: String) {
         Toast.makeText(baseContext, "$message", Toast.LENGTH_LONG).show()
     }

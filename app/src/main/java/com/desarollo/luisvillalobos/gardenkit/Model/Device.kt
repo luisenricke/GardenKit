@@ -120,6 +120,26 @@ data class Device(var name: String?, var device_request: String?, var apikey_req
             return device
         }
 
+        fun readDevice(name: String?): Device? {
+            var device = Device()
+            var cursor: Cursor? = null
+            try {
+                cursor = DBHelper.database!!.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN_NAME = ? ", arrayOf(name))
+                cursor?.moveToFirst()
+                device.id = cursor.getInt(0)
+                device.name = cursor.getString(1)
+                device.device_request = cursor.getString(2)
+                device.apikey_request = cursor.getString(3)
+                device.description = cursor.getString(4)
+                device.idUser = cursor.getInt(5)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                cursor?.close()
+            }
+            return device
+        }
+
         fun readDevice(device: Device): String? {
             var id: String? = null
             var cursor: Cursor? = null

@@ -42,6 +42,7 @@ class FormDevice : AppCompatActivity(), View.OnClickListener {
         key = Integer.parseInt("" + getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE).getString("user_id", null))
     }
 
+    //ClickListeners buttons implementation
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.btn_action -> actionBtnClick()
@@ -56,7 +57,7 @@ class FormDevice : AppCompatActivity(), View.OnClickListener {
                     in_apikey.text.toString(),
                     in_description.text.toString(),
                     key)
-            returnIntent.putExtra("device", deviceAux)
+            returnIntent.putExtra(ListDevices.DEVICE_PARCEABLE_TAG, deviceAux)
             setResult(Activity.RESULT_OK, returnIntent)
             finish()
         } else
@@ -68,6 +69,7 @@ class FormDevice : AppCompatActivity(), View.OnClickListener {
         finishFromChild(parent)
     }
 
+    //Extras
     private fun fieldsNotNull(): Boolean {
         return in_apikey.text.isNotEmpty() &&
                 in_description.text.isNotEmpty() &&
@@ -75,6 +77,7 @@ class FormDevice : AppCompatActivity(), View.OnClickListener {
                 in_name.text.isNotEmpty()
     }
 
+    //Message
     private fun toast(message: String) {
         Toast.makeText(baseContext, "$message", Toast.LENGTH_LONG).show()
     }

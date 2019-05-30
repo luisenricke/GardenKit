@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.list_devices.*
 class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemClickListener/*, AdapterView.OnItemLongClickListener*/ {
 
     companion object {
-        val DEVICE_PARCEABLE_TAG = "device"
+        const val DEVICE_PARCEABLE_TAG = "device"
     }
 
     private var key: Int = 0
@@ -33,14 +33,15 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.list_devices)
+
         //Check if user is logged
         try {
-            key = Integer.parseInt("" + getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE).getString("user_id", null))
+            key = Integer.parseInt("" + getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE).getString(Login.USERID, null))
         } catch (e: NumberFormatException) {
             var settingss: SharedPreferences = getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE)
             var editor: SharedPreferences.Editor = settingss.edit()
-            editor.putBoolean("logged", false)
-            editor.remove("user_id")
+                    .putBoolean(Login.IS_LOGGED, false)
+                    .remove(Login.USERID)
             editor.apply()
 
             val intent = Intent(this, Login::class.java)//FIXME: Check flags of intent
@@ -132,6 +133,7 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
     }
 
     //TODO: make function to delete and modify items
+    //TODO: evaluate if get view for choose action
     override fun onContextItemSelected(item: MenuItem?): Boolean {
         return when (item!!.itemId) {
             R.id.item_modificar -> {
