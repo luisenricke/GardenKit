@@ -1,5 +1,6 @@
 package com.desarollo.luisvillalobos.gardenkit.Activity
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -15,15 +16,15 @@ import com.desarollo.luisvillalobos.gardenkit.Controller.DeviceAdapter
 import com.desarollo.luisvillalobos.gardenkit.Controller.DeviceCursorAdapter
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity
 import com.desarollo.luisvillalobos.gardenkit.Model.Device
+import com.desarollo.luisvillalobos.gardenkit.Model.User
 import com.desarollo.luisvillalobos.gardenkit.R
 import kotlinx.android.synthetic.main.list_devices.*
 
 class ListDevices : AppCompatActivity(), View.OnClickListener {
 
     private var key: Int = 0
-    private var deviceList: ArrayList<Device> = ArrayList<Device>()
-
-    //var deviceAdapter: DeviceAdapter? = null
+    private lateinit var deviceList: ArrayList<Device>
+    private lateinit var deviceAdapter: DeviceAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,25 +48,30 @@ class ListDevices : AppCompatActivity(), View.OnClickListener {
         }
 
         try {
-            deviceList = Device.readDevicesWithUser(key)!!
             //var cursor:Cursor = Device.readDevicesWithUser(key)!!
-
             //val deviceAdapter = DeviceCursorAdapter(applicationContext,cursor)
-            var deviceAdapter = DeviceAdapter(this, deviceList)
+
+            deviceList = Device.readDevicesWithUser(key)!!
+            deviceAdapter = DeviceAdapter(this, deviceList)
             lvDevice.adapter = deviceAdapter
         } catch (ex: Exception) {
             log("${ex.message}")
         }
     }
 
-    override fun onResume() {
+    override fun onStart() {
+        super.onStart()
         DBHelper.openDB(baseContext)
+    }
+
+    override fun onResume() {
         super.onResume()
+        DBHelper.openDB(baseContext)
     }
 
     override fun onPause() {
-        DBHelper.closeDB()
         super.onPause()
+        DBHelper.closeDB()
     }
 
     override fun onClick(v: View?) {
@@ -99,19 +105,32 @@ class ListDevices : AppCompatActivity(), View.OnClickListener {
         editor.apply()
 
         val intent = Intent(this, Login::class.java)//FIXME: Check flags of intent
-        //intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         finish()
         startActivity(intent)
     }
 
-    private fun addBtnClick() {}
+    private fun addBtnClick() {
+        val intent: Intent = Intent(this, FormDevice::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+        startActivityForResult(intent, 1)
+    }
+
     private fun homeBtnClick() {}
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            val device: Device? = data?.extras!!.getParcelable("device")
+            DBHelper.openDB(baseContext)
+            if (Device.createDevice(device!!)) {
+                deviceAdapter.update(key)
+                toast("Dispositivo agregado")
+            }
+        } else
+            toast("Los campos no fueron validos")
+    }
+
     override fun onBackPressed() {
-        //Para no usar el boton hacia atras
-        //super.onBackPressed();
-        //overridePendingTransition( 0, 0);
-        //System.exit(0);
         moveTaskToBack(true)
     }
 
@@ -122,5 +141,4 @@ class ListDevices : AppCompatActivity(), View.OnClickListener {
     private fun log(message: String) {
         Log.e("BitZero", "$message")
     }
-
 }

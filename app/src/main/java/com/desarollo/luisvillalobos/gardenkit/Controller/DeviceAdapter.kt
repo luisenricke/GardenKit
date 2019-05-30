@@ -29,6 +29,11 @@ class DeviceAdapter(internal var context: Context, private var deviceList: Array
         return deviceList.size
     }
 
+    fun update(key:Int){
+        deviceList = Device.readDevicesWithUser(key)!!
+        notifyDataSetChanged()
+    }
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val view: View
         val viewHolder: ViewHolder
@@ -42,18 +47,12 @@ class DeviceAdapter(internal var context: Context, private var deviceList: Array
             viewHolder = view.tag as ViewHolder
         }
 
-        val currentItem = deviceList[position] as Device
+        val currentItem = deviceList[position]
 
         viewHolder.lblDescription.text =currentItem.description
         viewHolder.lblDevice.text =currentItem.device_request
         viewHolder.lblApiKey.text =currentItem.apikey_request
         viewHolder.lblUser.text = currentItem.name
-
-
-        convertView?.setOnClickListener() { v ->
-            Log.e("Bitzero", "getView(): item clicked ${v.id}")
-
-        }
 
         return view
     }
