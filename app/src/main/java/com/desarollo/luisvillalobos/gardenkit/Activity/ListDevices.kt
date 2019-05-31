@@ -23,12 +23,12 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
 
     companion object {
         const val DEVICE_PARCEABLE_TAG = "device"
+        const val REQUEST_FORMDEVICE = 123
     }
 
     private var key: Int = 0
     private lateinit var deviceList: ArrayList<Device>
     private lateinit var deviceAdapter: DeviceAdapter
-    private val REQUEST_FORMDEVICE = 123
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,8 +95,8 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
     private fun logOutBtnClick() {
         var settingss: SharedPreferences = getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE)
         var editor: SharedPreferences.Editor = settingss.edit()
-        editor.putBoolean("logged", false)
-        editor.remove("user_id")
+        editor.putBoolean(Login.IS_LOGGED, false)
+        editor.remove(Login.USERID)
         editor.apply()
 
         val intent = Intent(this, Login::class.java)//FIXME: Check flags of intent
@@ -107,15 +107,16 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
     private fun addBtnClick() {
         val intent: Intent = Intent(this, FormDevice::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-        startActivityForResult(intent, 1)
+        startActivityForResult(intent, REQUEST_FORMDEVICE)
     }
 
     private fun homeBtnClick() {}
 
     //ClickListener from ListView implementation
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        val lblName: TextView = view!!.findViewById(R.id.lblUser)
-        var device: Device = Device.Companion.readDevice(lblName.text.toString())!!
+        val lblName:TextView = view!!.findViewById(R.id.lblUser)
+        val aux = lblName.text.toString()
+        val device: Device = Device.readDevice(aux)!!
         var intent: Intent = Intent(this, Graphs::class.java)
         intent.putExtra(DEVICE_PARCEABLE_TAG, device)
         intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY

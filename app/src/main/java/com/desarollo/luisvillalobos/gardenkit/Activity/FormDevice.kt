@@ -39,7 +39,7 @@ class FormDevice : AppCompatActivity(), View.OnClickListener {
         //Extras
         returnIntent = intent
         returnIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_HISTORY
-        key = Integer.parseInt("" + getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE).getString("user_id", null))
+        key = Integer.parseInt("" + getSharedPreferences(Login.PREFS_NAME, Context.MODE_PRIVATE).getString(Login.USERID, null))
     }
 
     //ClickListeners buttons implementation

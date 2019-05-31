@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activity.FormDevice" />
-        <activity android:name=".View.graphsJ" />
+        <activity android:name=".Activity.Graphs" />
         <activity android:name=".Activity.ListDevices"></activity>
     </application>
 
