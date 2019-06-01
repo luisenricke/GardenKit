@@ -38,7 +38,93 @@ class Graphs : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.graphs)
         setup()
-        
+
+        //graphTest()
+    }
+
+    private fun setup() {
+        //Screen
+        SetUpActivity.hiderActionBar(this)
+        SetUpActivity.hideStatusBar(this)
+        SetUpActivity.hideSoftKeyboard(this)
+
+        //Listeners
+        btn_home.setOnClickListener(this)
+
+        //GetExtras
+        device = intent.getParcelableExtra(ListDevices.DEVICE_PARCEABLE_TAG)
+    }
+
+    //ClickListeners buttons implementation
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.btn_home -> homeBtnClick()
+        }
+    }
+
+    private fun homeBtnClick() {
+        finish()
+    }
+
+    //ManageGraphs
+    private fun lineDataSetConfig(lineDataSet: LineDataSet) {
+        lineDataSet.valueTextColor = Color.BLACK
+        lineDataSet.lineWidth = 2F
+        lineDataSet.circleRadius = 4f
+        lineDataSet.setDrawCircleHole(false)
+        lineDataSet.valueTextSize = 8F
+        //lineDataSet.circleHoleRadius = 4f
+    }
+
+    private fun lineDataSetChangeLineColor(lineDataSet: LineDataSet, color: Int) {
+        lineDataSet.color = color
+        lineDataSet.setCircleColor(color)
+        lineDataSet.highLightColor = color
+    }
+
+    private fun graphInit(viewGraph: LineChart) {
+        viewGraph.setNoDataTextColor(Color.RED)
+        viewGraph.setNoDataText("No hay datos para graficar")
+        viewGraph.isDoubleTapToZoomEnabled = false
+        viewGraph.invalidate()
+    }
+
+    private fun graphConfig(viewGraph: LineChart, graphName: String, lineDataSets: MutableList<LineDataSet>, limitLines: HashSet<LimitLine>?) {
+        viewGraph.description.text = graphName
+        viewGraph.description.textSize = 10f
+
+        viewGraph.data = LineData()
+        for (element in lineDataSets) {
+            viewGraph.data.addDataSet(element)
+        }
+
+        viewGraph.xAxis.position = XAxis.XAxisPosition.BOTTOM// Set the xAxis position to bottom. Default is top
+        viewGraph.xAxis.granularity = 1f// minimum axis-step (interval) is 1
+        viewGraph.axisRight.isEnabled = false// Controlling right side of y axis
+        viewGraph.axisLeft.granularity = 0.1f// Controlling left side of y axis
+
+        viewGraph.setBorderWidth(2f)
+        viewGraph.setDrawBorders(true)
+
+        if (limitLines != null) {
+            for (element in limitLines)
+                viewGraph.axisLeft.addLimitLine(element)
+        }
+
+        viewGraph.animateX(2500, Easing.EasingOption.EaseOutSine)
+        viewGraph.invalidate() // refresh
+    }
+
+    private fun graphAddLimit(sensor: Sensor, limit: Float, nameLabel: String) {
+        val limitLine = LimitLine(limit, nameLabel)
+        limitLine.lineWidth = 1.5f
+        limitLine.enableDashedLine(15f, 15f, 0f)
+        limitLine.labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+        limitLine.textSize = 8f
+        sensor.limitLines.add(limitLine)
+    }
+
+    private fun graphTest(){
         graphInit(graphWet)
         graphInit(graphPh)
 
@@ -122,88 +208,6 @@ class Graphs : AppCompatActivity(), View.OnClickListener {
         lineDataSets.clear()
         lineDataSets.add(0, ph.lineDataSet)
         graphConfig(graphPh, "Grafica de PH", lineDataSets, null)
-    }
-
-    private fun setup() {
-        //Screen
-        SetUpActivity.hiderActionBar(this)
-        SetUpActivity.hideStatusBar(this)
-        SetUpActivity.hideSoftKeyboard(this)
-
-        //Listeners
-        btn_home.setOnClickListener(this)
-
-        //GetExtras
-        device = intent.getParcelableExtra(ListDevices.DEVICE_PARCEABLE_TAG)
-    }
-
-    //ClickListeners buttons implementation
-    override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.btn_home -> homeBtnClick()
-        }
-    }
-
-    private fun homeBtnClick() {
-        finish()
-    }
-
-    //Extras
-    private fun lineDataSetConfig(lineDataSet: LineDataSet) {
-        lineDataSet.valueTextColor = Color.BLACK
-        lineDataSet.lineWidth = 2F
-        lineDataSet.circleRadius = 4f
-        lineDataSet.setDrawCircleHole(false)
-        lineDataSet.valueTextSize = 8F
-        //lineDataSet.circleHoleRadius = 4f
-    }
-
-    private fun lineDataSetChangeLineColor(lineDataSet: LineDataSet, color: Int) {
-        lineDataSet.color = color
-        lineDataSet.setCircleColor(color)
-        lineDataSet.highLightColor = color
-    }
-
-    private fun graphInit(viewGraph: LineChart) {
-        viewGraph.setNoDataTextColor(Color.RED)
-        viewGraph.setNoDataText("No hay datos para graficar")
-        viewGraph.isDoubleTapToZoomEnabled = false
-        viewGraph.invalidate()
-    }
-
-    private fun graphConfig(viewGraph: LineChart, graphName: String, lineDataSets: MutableList<LineDataSet>, limitLines: HashSet<LimitLine>?) {
-        viewGraph.description.text = graphName
-        viewGraph.description.textSize = 10f
-
-        viewGraph.data = LineData()
-        for (element in lineDataSets) {
-            viewGraph.data.addDataSet(element)
-        }
-
-        viewGraph.xAxis.position = XAxis.XAxisPosition.BOTTOM// Set the xAxis position to bottom. Default is top
-        viewGraph.xAxis.granularity = 1f// minimum axis-step (interval) is 1
-        viewGraph.axisRight.isEnabled = false// Controlling right side of y axis
-        viewGraph.axisLeft.granularity = 0.1f// Controlling left side of y axis
-
-        viewGraph.setBorderWidth(2f)
-        viewGraph.setDrawBorders(true)
-
-        if (limitLines != null) {
-            for (element in limitLines)
-                viewGraph.axisLeft.addLimitLine(element)
-        }
-
-        viewGraph.animateX(2500, Easing.EasingOption.EaseOutSine)
-        viewGraph.invalidate() // refresh
-    }
-
-    private fun graphAddLimit(sensor: Sensor, limit: Float, nameLabel: String) {
-        val limitLine = LimitLine(limit, nameLabel)
-        limitLine.lineWidth = 1.5f
-        limitLine.enableDashedLine(15f, 15f, 0f)
-        limitLine.labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
-        limitLine.textSize = 8f
-        sensor.limitLines.add(limitLine)
     }
 
     //Message
