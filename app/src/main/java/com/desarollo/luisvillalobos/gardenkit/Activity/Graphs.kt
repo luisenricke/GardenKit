@@ -1,8 +1,7 @@
 package com.desarollo.luisvillalobos.gardenkit.Activity
 
+import android.app.DatePickerDialog
 import android.graphics.Color
-import android.graphics.LinearGradient
-import android.opengl.Visibility
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -14,7 +13,6 @@ import com.android.volley.AuthFailureError
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
-import com.android.volley.Response.Listener
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.desarollo.luisvillalobos.gardenkit.Controller.*
@@ -27,23 +25,34 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.utils.EntryXComparator
 import kotlinx.android.synthetic.main.graphs.*
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
+import kotlin.math.absoluteValue
 
 class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSelectedListener {
 
     private lateinit var device: Device
-    var listOfChoose = arrayOf("Seleccione una opción", "Hoy", "Ayer", "Una semana", "Dos semanas", "Escoger fechas")
+    var listOfChoose = arrayOf("Seleccione una opción", "Hoy", "Ayer", "Una semana", "Dos semanas", "Un mes", "Escoger fechas")
     var itemChoosed = 0
 
-    lateinit var calendarFrom: Calendar
-    lateinit var calendarTo: Calendar
+    lateinit var calendarInstance: Calendar
+    val DATEF: SimpleDateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
+
+    var _year: Int = 0
+    var _month: Int = 0
+    var _day: Int = 0
+    var _hour: Int = 0
+    var _minute: Int = 0
+    var _second: Int = 0
+
+    var datePicker: DatePickerDialog? = null
+    var longTo: Long = 0
+    var longFrom: Long = 0
 
     companion object {
         private val JSON_URL = "http://api.altairsmartcore.com/streams/?"
@@ -62,11 +71,6 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
         super.onCreate(savedInstanceState)
         setContentView(R.layout.graphs)
         setup()
-
-        //getUsers()
-
-        //graphTest()
-        loadDataAllData()
     }
 
     private fun setup() {
@@ -93,6 +97,18 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
 
         //GetExtras
         device = intent.getParcelableExtra(ListDevices.DEVICE_PARCEABLE_TAG)
+
+        //Date
+        calendarInstance = Calendar.getInstance()
+        calendarInstance.time = Date(System.currentTimeMillis())
+        calendarInstance.timeZone = TimeZone.getTimeZone("CDT")
+        log(DATEF.format(calendarInstance.time))
+        _year = calendarInstance.get(Calendar.YEAR)
+        _month = calendarInstance.get(Calendar.MONTH)
+        _day = calendarInstance.get(Calendar.DAY_OF_MONTH)
+        _hour = calendarInstance.get(Calendar.HOUR_OF_DAY)
+        _minute = calendarInstance.get(Calendar.MINUTE)
+        _second = calendarInstance.get(Calendar.SECOND)
     }
 
 
@@ -107,29 +123,88 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
     }
 
     private fun sendBtnClick() {
+        calendarInstance.time = Date(System.currentTimeMillis())
+        log("from long: " + longFrom.toString())
         when (itemChoosed) {
             0 -> {
                 toast("Selecciona una opción valida")
             }
             1 -> {
+                calendarInstance.time = DateOperations.clearTime(calendarInstance.time)
+                longFrom = calendarInstance.time.time
+                loadDataByDates(longFrom, 0)
             }
             2 -> {
+                calendarInstance.time = DateOperations.subDay(DateOperations.clearTime(calendarInstance.time), 1)
+                longFrom = calendarInstance.time.time
+                loadDataByDates(longFrom, 0)
             }
             3 -> {
+                calendarInstance.time = DateOperations.subDay(DateOperations.clearTime(calendarInstance.time), 7)
+                longFrom = calendarInstance.time.time
+                loadDataByDates(longFrom, 0)
             }
             4 -> {
+                calendarInstance.time = DateOperations.subDay(DateOperations.clearTime(calendarInstance.time), 14)
+                longFrom = calendarInstance.time.time
+                loadDataByDates(longFrom, 0)
             }
             5 -> {
+                calendarInstance.time = DateOperations.subMonth(DateOperations.clearTime(calendarInstance.time), 1)
+                longFrom = calendarInstance.time.time
+                loadDataByDates(longFrom, 0)
+            }
+            6 -> {
+                log(DATEF.format(longFrom) + " - " + DATEF.format(longTo))
+                loadDataByDates(longFrom, longTo)
             }
         }
     }
 
-    private fun dateToBtnClick() {}
-    private fun dateFromBtnClick() {}
+    private fun dateFromBtnClick() {
+        calendarInstance.time = Date(System.currentTimeMillis())
+        log(DATEF.format(calendarInstance.time))
+        datePicker = DatePickerDialog(this,
+                DatePickerDialog.OnDateSetListener { view, year, month, day ->
+                    calendarInstance.set(Calendar.YEAR, year)
+                    calendarInstance.set(Calendar.MONTH, month)
+                    calendarInstance.set(Calendar.DAY_OF_MONTH, day)
+                    calendarInstance.time = DateOperations.clearTime(calendarInstance.time)
+                    calendarInstance.set(Calendar.HOUR_OF_DAY, calendarInstance.get(Calendar.HOUR_OF_DAY))
+                    calendarInstance.set(Calendar.MINUTE, calendarInstance.get(Calendar.MINUTE))
+                    calendarInstance.set(Calendar.SECOND, calendarInstance.get(Calendar.SECOND))
+                    longFrom = calendarInstance.time.time
+                    log(DATEF.format(longFrom) + " - " + calendarInstance.time.toString())
+                }, _year, _month, _day)
+        datePicker!!.datePicker.maxDate = calendarInstance.timeInMillis
+        datePicker?.show()
+        datePicker = null
+    }
+
+    private fun dateToBtnClick() {
+        calendarInstance.time = Date(System.currentTimeMillis())
+        log(DATEF.format(calendarInstance.time))
+        datePicker = DatePickerDialog(this,
+                DatePickerDialog.OnDateSetListener { view, year, month, day ->
+                    calendarInstance.set(Calendar.YEAR, year)
+                    calendarInstance.set(Calendar.MONTH, month)
+                    calendarInstance.set(Calendar.DAY_OF_MONTH, day)
+                    calendarInstance.time = DateOperations.getEnd(calendarInstance.time)
+                    calendarInstance.set(Calendar.HOUR_OF_DAY, calendarInstance.get(Calendar.HOUR_OF_DAY))
+                    calendarInstance.set(Calendar.MINUTE, calendarInstance.get(Calendar.MINUTE))
+                    calendarInstance.set(Calendar.SECOND, calendarInstance.get(Calendar.SECOND))
+                    longTo = calendarInstance.time.time
+                    log(DATEF.format(longTo) + " - " + calendarInstance.time.toString())
+                }, _year, _month, _day)
+        datePicker!!.datePicker.maxDate = calendarInstance.timeInMillis
+        datePicker?.show()
+        datePicker = null
+    }
 
     private fun homeBtnClick() {
         finish()
     }
+
 
     //ClickListener from Spinner implementation
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -152,105 +227,121 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
     }
 
     //ManageGraphs
-    private fun loadDataByDates(date_from: Long?, date_to: Long?) {
+    private fun loadDataByDates(date_from: Long, date_to: Long) {
         val dataRequest = DataRequest()
         dataRequest.nameJSONObject = "data"
 
         val emailDotDevice = "device@dev_bitbot_test.dev_bitbot_test"
         val apiKey = "d8a08f2ed52ec23463402769c3b0ccb6a8e4c6fa4bb6ea77f320cdbf553a2521"
-
         var URL_REQUEST: String? = null
-        if (date_from == null && date_to == null) //All Data
-            URL_REQUEST = JSON_URL + DEVICE + emailDotDevice
-        if (date_to == null && date_from != null)
-            URL_REQUEST = JSON_URL + DEVICE + emailDotDevice + AT_FROM + date_from + SORT + ORDER
-        if (date_from != null && date_to != null)
-            URL_REQUEST = JSON_URL + DEVICE + emailDotDevice + AT_FROM + date_from + AT_TO + date_to + SORT + ORDER
 
+        if (date_from == 0L && date_to == 0L) //All Data
+            URL_REQUEST = JSON_URL + DEVICE + emailDotDevice
+        if (date_from != 0L && date_to == 0L)
+            URL_REQUEST = JSON_URL + DEVICE + emailDotDevice + AT_FROM + (date_from / 1000) + SORT + ORDER
+        if (date_from != 0L && date_to != 0L)
+            URL_REQUEST = JSON_URL + DEVICE + emailDotDevice + AT_FROM + date_from / 1000 + AT_TO + date_to / 1000 + SORT + ORDER
 
         var stringRequest: StringRequest = object : StringRequest(
-                Request.Method.GET,
+                Method.GET,
                 URL_REQUEST,
                 Response.Listener<String> { response ->
+                    try {
+                        val wet1 = Sensor()
+                        wet1.name = "Humedad1"
 
-                    val wet1 = Sensor()
-                    wet1.name = "Humedad1"
+                        val wet2 = Sensor()
+                        wet2.name = "Humedad2"
 
-                    val wet2 = Sensor()
-                    wet2.name = "Humedad2"
+                        val wet3 = Sensor()
+                        wet3.name = "Humedad3"
 
-                    val wet3 = Sensor()
-                    wet3.name = "Humedad3"
+                        val wet4 = Sensor()
+                        wet4.name = "Humedad4"
 
-                    val wet4 = Sensor()
-                    wet4.name = "Humedad4"
+                        val wet5 = Sensor()
+                        wet5.name = "Humedad5"
 
-                    val wet5 = Sensor()
-                    wet5.name = "Humedad5"
+                        val ph = Sensor()
+                        ph.name = "PH"
 
-                    val ph = Sensor()
-                    ph.name = "PH"
+                        var limitLine = LimitLine(90F, "Alto")
+                        limitLine.lineWidth = 1.5f
+                        limitLine.enableDashedLine(15f, 15f, 0f)
+                        limitLine.labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+                        limitLine.textSize = 8f
+                        wet1.limitLines.add(limitLine)
 
-                    graphAddLimit(wet1, 90f, "Alto")
-                    graphAddLimit(wet1, 60f, "Mediano")
-                    graphAddLimit(wet1, 40f, "Bajo")
+                        limitLine = LimitLine(60f, "Mediano")
+                        limitLine.lineWidth = 1.5f
+                        limitLine.enableDashedLine(15f, 15f, 0f)
+                        limitLine.labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+                        limitLine.textSize = 8f
+                        wet1.limitLines.add(limitLine)
 
-                    var json = JSONObject(response)
-                    var results: JSONArray = json.getJSONArray("result")
+                        limitLine = LimitLine(40f, "Bajo")
+                        limitLine.lineWidth = 1.5f
+                        limitLine.enableDashedLine(15f, 15f, 0f)
+                        limitLine.labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+                        limitLine.textSize = 8f
+                        wet1.limitLines.add(limitLine)
 
-                    for (element in 0 until results.length()) {
-                        log(element.toString())
-                        val aux = results.getJSONObject(element)
-                        val data = aux.getJSONObject("data")
+                        var json = JSONObject(response)
+                        var results: JSONArray = json.getJSONArray("result")
 
-                        wet1.sensedValues.add(element, SensedValue(/*data.getString(wet1.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        wet1.entries.add(element, Entry(element.toFloat(), (wet1.sensedValues[element].value as Float)))
-                        log("${wet1.name}:  (${wet1.entries.get(element).x}, ${wet1.entries.get(element).y})")
+                        for (element in 0 until results.length()) {
+                            log(element.toString())
+                            val aux = results.getJSONObject(element)
+                            val data = aux.getJSONObject("data")
 
-                        wet2.sensedValues.add(element, SensedValue(/*data.getString(wet2.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        wet2.entries.add(element, Entry(element.toFloat(), (wet2.sensedValues[element].value as Float)))
-                        log("${wet2.name}:  (${wet2.entries.get(element).x}, ${wet2.entries.get(element).y})")
+                            wet1.sensedValues.add(element, SensedValue(/*data.getString(wet1.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            wet1.entries.add(element, Entry(element.toFloat(), (wet1.sensedValues[element].value as Float)))
+                            log("${wet1.name}:  (${wet1.entries.get(element).x}, ${wet1.entries.get(element).y})")
 
-                        wet3.sensedValues.add(element, SensedValue(/*data.getString(wet3.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        wet3.entries.add(element, Entry(element.toFloat(), (wet3.sensedValues[element].value as Float)))
-                        log("${wet3.name}:  (${wet3.entries.get(element).x}, ${wet3.entries.get(element).y})")
+                            wet2.sensedValues.add(element, SensedValue(/*data.getString(wet2.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            wet2.entries.add(element, Entry(element.toFloat(), (wet2.sensedValues[element].value as Float)))
+                            log("${wet2.name}:  (${wet2.entries.get(element).x}, ${wet2.entries.get(element).y})")
 
-                        wet4.sensedValues.add(element, SensedValue(/*data.getString(wet4.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        wet4.entries.add(element, Entry(element.toFloat(), (wet4.sensedValues[element].value as Float)))
-                        log("${wet4.name}:  (${wet4.entries.get(element).x}, ${wet4.entries.get(element).y})")
+                            wet3.sensedValues.add(element, SensedValue(/*data.getString(wet3.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            wet3.entries.add(element, Entry(element.toFloat(), (wet3.sensedValues[element].value as Float)))
+                            log("${wet3.name}:  (${wet3.entries.get(element).x}, ${wet3.entries.get(element).y})")
 
-                        wet5.sensedValues.add(element, SensedValue(/*data.getString(wet5.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        wet5.entries.add(element, Entry(element.toFloat(), (wet5.sensedValues[element].value as Float)))
-                        log("${wet5.name}:  (${wet5.entries.get(element).x}, ${wet5.entries.get(element).y})")
+                            wet4.sensedValues.add(element, SensedValue(/*data.getString(wet4.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            wet4.entries.add(element, Entry(element.toFloat(), (wet4.sensedValues[element].value as Float)))
+                            log("${wet4.name}:  (${wet4.entries.get(element).x}, ${wet4.entries.get(element).y})")
 
-                        ph.sensedValues.add(element, SensedValue(/*data.getString(ph.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        ph.entries.add(element, Entry(element.toFloat(), (ph.sensedValues[element].value as Float)))
-                        log("${ph.name}:  (${ph.entries.get(element).x}, ${ph.entries.get(element).y})")
-                    }
+                            wet5.sensedValues.add(element, SensedValue(/*data.getString(wet5.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            wet5.entries.add(element, Entry(element.toFloat(), (wet5.sensedValues[element].value as Float)))
+                            log("${wet5.name}:  (${wet5.entries.get(element).x}, ${wet5.entries.get(element).y})")
 
-                    wet1.lineDataSet = LineDataSet(wet1.entries, "h1")
-                    lineDataSetConfig(wet1.lineDataSet)
-                    lineDataSetChangeLineColor(wet1.lineDataSet, Color.YELLOW)
+                            ph.sensedValues.add(element, SensedValue(/*data.getString(ph.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            ph.entries.add(element, Entry(element.toFloat(), (ph.sensedValues[element].value as Float)))
+                            log("${ph.name}:  (${ph.entries.get(element).x}, ${ph.entries.get(element).y})")
+                        }
 
-                    wet2.lineDataSet = LineDataSet(wet2.entries, "h2")
-                    lineDataSetConfig(wet2.lineDataSet)
-                    lineDataSetChangeLineColor(wet2.lineDataSet, Color.CYAN)
+                        wet1.lineDataSet = LineDataSet(wet1.entries, "h1")
+                        lineDataSetConfig(wet1.lineDataSet)
+                        lineDataSetChangeLineColor(wet1.lineDataSet, Color.YELLOW)
 
-                    wet3.lineDataSet = LineDataSet(wet3.entries, "h3")
-                    lineDataSetConfig(wet3.lineDataSet)
-                    lineDataSetChangeLineColor(wet3.lineDataSet, Color.BLUE)
+                        wet2.lineDataSet = LineDataSet(wet2.entries, "h2")
+                        lineDataSetConfig(wet2.lineDataSet)
+                        lineDataSetChangeLineColor(wet2.lineDataSet, Color.CYAN)
 
-                    wet4.lineDataSet = LineDataSet(wet4.entries, "h4")
-                    lineDataSetConfig(wet4.lineDataSet)
-                    lineDataSetChangeLineColor(wet4.lineDataSet, Color.GREEN)
+                        wet3.lineDataSet = LineDataSet(wet3.entries, "h3")
+                        lineDataSetConfig(wet3.lineDataSet)
+                        lineDataSetChangeLineColor(wet3.lineDataSet, Color.BLUE)
 
-                    wet5.lineDataSet = LineDataSet(wet5.entries, "h5")
-                    lineDataSetConfig(wet5.lineDataSet)
-                    lineDataSetChangeLineColor(wet5.lineDataSet, Color.MAGENTA)
+                        wet4.lineDataSet = LineDataSet(wet4.entries, "h4")
+                        lineDataSetConfig(wet4.lineDataSet)
+                        lineDataSetChangeLineColor(wet4.lineDataSet, Color.GREEN)
 
-                    ph.lineDataSet = LineDataSet(ph.entries, "ph")
-                    lineDataSetConfig(ph.lineDataSet)
-                    lineDataSetChangeLineColor(ph.lineDataSet, Color.RED)
+                        wet5.lineDataSet = LineDataSet(wet5.entries, "h5")
+                        lineDataSetConfig(wet5.lineDataSet)
+                        lineDataSetChangeLineColor(wet5.lineDataSet, Color.MAGENTA)
+
+                        ph.lineDataSet = LineDataSet(ph.entries, "ph")
+                        lineDataSetConfig(ph.lineDataSet)
+                        lineDataSetChangeLineColor(ph.lineDataSet, Color.RED)
 /*
                     val lineDataSets: MutableList<LineDataSet> = mutableListOf()
                     lineDataSets.add(0, wet1.lineDataSet)
@@ -261,20 +352,20 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
                     graphConfig(this.graphWet, "Grafica de Humedad", lineDataSets, wet1.limitLines)
 */
 
-                    graphWet.description.text = "Grafica de Humedad"
-                    graphWet.description.textSize = 10f
-                    graphWet.data = LineData(wet1.lineDataSet, wet2.lineDataSet, wet3.lineDataSet, wet4.lineDataSet, wet5.lineDataSet)
+                        graphWet.description.text = "Grafica de Humedad"
+                        graphWet.description.textSize = 10f
+                        graphWet.data = LineData(wet1.lineDataSet, wet2.lineDataSet, wet3.lineDataSet, wet4.lineDataSet, wet5.lineDataSet)
 
-                    graphWet.xAxis.position = XAxis.XAxisPosition.BOTTOM// Set the xAxis position to bottom. Default is top
-                    graphWet.xAxis.granularity = 1f// minimum axis-step (interval) is 1
-                    graphWet.axisRight.isEnabled = false// Controlling right side of y axis
-                    graphWet.axisLeft.granularity = 0.1f// Controlling left side of y axis
+                        graphWet.xAxis.position = XAxis.XAxisPosition.BOTTOM// Set the xAxis position to bottom. Default is top
+                        graphWet.xAxis.granularity = 1f// minimum axis-step (interval) is 1
+                        graphWet.axisRight.isEnabled = false// Controlling right side of y axis
+                        graphWet.axisLeft.granularity = 0.1f// Controlling left side of y axis
 
-                    graphWet.setBorderWidth(2f)
-                    graphWet.setDrawBorders(true)
+                        graphWet.setBorderWidth(2f)
+                        graphWet.setDrawBorders(true)
 
-                    graphWet.animateX(2500, Easing.EaseOutSine)
-                    graphWet.invalidate() // refresh
+                        graphWet.animateX(2500, Easing.EaseOutSine)
+                        graphWet.invalidate() // refresh
 
 /*
                     lineDataSets.clear()
@@ -282,20 +373,24 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
                     graphConfig(graphPh, "Grafica de PH", lineDataSets, null)
 */
 
-                    graphPh.description.text = "Grafica de PH"
-                    graphPh.description.textSize = 10f
-                    graphPh.data = LineData(ph.lineDataSet)
+                        graphPh.description.text = "Grafica de PH"
+                        graphPh.description.textSize = 10f
+                        graphPh.data = LineData(ph.lineDataSet)
 
-                    graphPh.xAxis.position = XAxis.XAxisPosition.BOTTOM// Set the xAxis position to bottom. Default is top
-                    graphPh.xAxis.granularity = 1f// minimum axis-step (interval) is 1
-                    graphPh.axisRight.isEnabled = false// Controlling right side of y axis
-                    graphPh.axisLeft.granularity = 0.1f// Controlling left side of y axis
+                        graphPh.xAxis.position = XAxis.XAxisPosition.BOTTOM// Set the xAxis position to bottom. Default is top
+                        graphPh.xAxis.granularity = 1f// minimum axis-step (interval) is 1
+                        graphPh.axisRight.isEnabled = false// Controlling right side of y axis
+                        graphPh.axisLeft.granularity = 0.1f// Controlling left side of y axis
 
-                    graphPh.setBorderWidth(2f)
-                    graphPh.setDrawBorders(true)
+                        graphPh.setBorderWidth(2f)
+                        graphPh.setDrawBorders(true)
 
-                    graphPh.animateX(2500, Easing.EaseOutSine)
-                    graphPh.invalidate() // refresh
+                        graphPh.animateX(2500, Easing.EaseOutSine)
+                        graphPh.invalidate() // refresh
+                    } catch (e: Exception) {
+                        log("${e.message}")
+                        toast("Verifique su conexión a Inteernet")
+                    }
                 },
                 Response.ErrorListener {
                     log("Within internet")
@@ -309,160 +404,6 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
                 headers[API] = apiKey
                 return headers
             }
-
-        }
-        var request: RequestQueue = Volley.newRequestQueue(this)
-        request.add(stringRequest)
-    }
-
-    private fun loadDataAllData() {
-        val dataRequest = DataRequest()
-        dataRequest.nameJSONObject = "data"
-
-        val emailDotDevice = "device@dev_bitbot_test.dev_bitbot_test"
-        val apiKey = "d8a08f2ed52ec23463402769c3b0ccb6a8e4c6fa4bb6ea77f320cdbf553a2521"
-
-        var stringRequest: StringRequest = object : StringRequest(
-                Request.Method.GET,
-                JSON_URL + DEVICE + emailDotDevice,
-                Response.Listener<String> { response ->
-
-                    val wet1 = Sensor()
-                    wet1.name = "Humedad1"
-
-                    val wet2 = Sensor()
-                    wet2.name = "Humedad2"
-
-                    val wet3 = Sensor()
-                    wet3.name = "Humedad3"
-
-                    val wet4 = Sensor()
-                    wet4.name = "Humedad4"
-
-                    val wet5 = Sensor()
-                    wet5.name = "Humedad5"
-
-                    val ph = Sensor()
-                    ph.name = "PH"
-
-                    graphAddLimit(wet1, 90f, "Alto")
-                    graphAddLimit(wet1, 60f, "Mediano")
-                    graphAddLimit(wet1, 40f, "Bajo")
-
-                    var json = JSONObject(response)
-                    var results: JSONArray = json.getJSONArray("result")
-
-                    for (element in 0 until results.length()) {
-                        log(element.toString())
-                        val aux = results.getJSONObject(element)
-                        val data = aux.getJSONObject("data")
-
-                        wet1.sensedValues.add(element, SensedValue(/*data.getString(wet1.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        wet1.entries.add(element, Entry(element.toFloat(), (wet1.sensedValues[element].value as Float)))
-                        log("${wet1.name}:  (${wet1.entries.get(element).x}, ${wet1.entries.get(element).y})")
-
-                        wet2.sensedValues.add(element, SensedValue(/*data.getString(wet2.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        wet2.entries.add(element, Entry(element.toFloat(), (wet2.sensedValues[element].value as Float)))
-                        log("${wet2.name}:  (${wet2.entries.get(element).x}, ${wet2.entries.get(element).y})")
-
-                        wet3.sensedValues.add(element, SensedValue(/*data.getString(wet3.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        wet3.entries.add(element, Entry(element.toFloat(), (wet3.sensedValues[element].value as Float)))
-                        log("${wet3.name}:  (${wet3.entries.get(element).x}, ${wet3.entries.get(element).y})")
-
-                        wet4.sensedValues.add(element, SensedValue(/*data.getString(wet4.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        wet4.entries.add(element, Entry(element.toFloat(), (wet4.sensedValues[element].value as Float)))
-                        log("${wet4.name}:  (${wet4.entries.get(element).x}, ${wet4.entries.get(element).y})")
-
-                        wet5.sensedValues.add(element, SensedValue(/*data.getString(wet5.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        wet5.entries.add(element, Entry(element.toFloat(), (wet5.sensedValues[element].value as Float)))
-                        log("${wet5.name}:  (${wet5.entries.get(element).x}, ${wet5.entries.get(element).y})")
-
-                        ph.sensedValues.add(element, SensedValue(/*data.getString(ph.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
-                        ph.entries.add(element, Entry(element.toFloat(), (ph.sensedValues[element].value as Float)))
-                        log("${ph.name}:  (${ph.entries.get(element).x}, ${ph.entries.get(element).y})")
-                    }
-
-                    wet1.lineDataSet = LineDataSet(wet1.entries, "h1")
-                    lineDataSetConfig(wet1.lineDataSet)
-                    lineDataSetChangeLineColor(wet1.lineDataSet, Color.YELLOW)
-
-                    wet2.lineDataSet = LineDataSet(wet2.entries, "h2")
-                    lineDataSetConfig(wet2.lineDataSet)
-                    lineDataSetChangeLineColor(wet2.lineDataSet, Color.CYAN)
-
-                    wet3.lineDataSet = LineDataSet(wet3.entries, "h3")
-                    lineDataSetConfig(wet3.lineDataSet)
-                    lineDataSetChangeLineColor(wet3.lineDataSet, Color.BLUE)
-
-                    wet4.lineDataSet = LineDataSet(wet4.entries, "h4")
-                    lineDataSetConfig(wet4.lineDataSet)
-                    lineDataSetChangeLineColor(wet4.lineDataSet, Color.GREEN)
-
-                    wet5.lineDataSet = LineDataSet(wet5.entries, "h5")
-                    lineDataSetConfig(wet5.lineDataSet)
-                    lineDataSetChangeLineColor(wet5.lineDataSet, Color.MAGENTA)
-
-                    ph.lineDataSet = LineDataSet(ph.entries, "ph")
-                    lineDataSetConfig(ph.lineDataSet)
-                    lineDataSetChangeLineColor(ph.lineDataSet, Color.RED)
-/*
-                    val lineDataSets: MutableList<LineDataSet> = mutableListOf()
-                    lineDataSets.add(0, wet1.lineDataSet)
-                    lineDataSets.add(1, wet2.lineDataSet)
-                    lineDataSets.add(2, wet3.lineDataSet)
-                    lineDataSets.add(3, wet4.lineDataSet)
-                    lineDataSets.add(4, wet5.lineDataSet)
-                    graphConfig(this.graphWet, "Grafica de Humedad", lineDataSets, wet1.limitLines)
-*/
-
-                    graphWet.description.text = "Grafica de Humedad"
-                    graphWet.description.textSize = 10f
-                    graphWet.data = LineData(wet1.lineDataSet, wet2.lineDataSet, wet3.lineDataSet, wet4.lineDataSet, wet5.lineDataSet)
-
-                    graphWet.xAxis.position = XAxis.XAxisPosition.BOTTOM// Set the xAxis position to bottom. Default is top
-                    graphWet.xAxis.granularity = 1f// minimum axis-step (interval) is 1
-                    graphWet.axisRight.isEnabled = false// Controlling right side of y axis
-                    graphWet.axisLeft.granularity = 0.1f// Controlling left side of y axis
-
-                    graphWet.setBorderWidth(2f)
-                    graphWet.setDrawBorders(true)
-
-                    graphWet.animateX(2500, Easing.EaseOutSine)
-                    graphWet.invalidate() // refresh
-
-/*
-                    lineDataSets.clear()
-                    lineDataSets.add(0, ph.lineDataSet)
-                    graphConfig(graphPh, "Grafica de PH", lineDataSets, null)
-*/
-
-                    graphPh.description.text = "Grafica de PH"
-                    graphPh.description.textSize = 10f
-                    graphPh.data = LineData(ph.lineDataSet)
-
-                    graphPh.xAxis.position = XAxis.XAxisPosition.BOTTOM// Set the xAxis position to bottom. Default is top
-                    graphPh.xAxis.granularity = 1f// minimum axis-step (interval) is 1
-                    graphPh.axisRight.isEnabled = false// Controlling right side of y axis
-                    graphPh.axisLeft.granularity = 0.1f// Controlling left side of y axis
-
-                    graphPh.setBorderWidth(2f)
-                    graphPh.setDrawBorders(true)
-
-                    graphPh.animateX(2500, Easing.EaseOutSine)
-                    graphPh.invalidate() // refresh
-                },
-                Response.ErrorListener {
-                    log("That didn't work!")
-                }
-        ) {
-            @Throws(AuthFailureError::class)
-            override fun getHeaders(): Map<String, String> {
-                val headers = HashMap<String, String>()
-                headers.put("Content-Type", "application/json")
-                headers.put(API, apiKey)
-                return headers
-            }
-
         }
         var request: RequestQueue = Volley.newRequestQueue(this)
         request.add(stringRequest)
@@ -525,101 +466,6 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
         limitLine.textSize = 8f
         sensor.limitLines.add(limitLine)
     }
-
-    private fun graphTest() {
-
-
-        val dataRequest = DataRequest()
-        dataRequest.nameJSONObject = "data"
-
-        val wet1 = Sensor()
-        wet1.name = "h1"
-
-        val wet2 = Sensor()
-        wet2.name = "h2"
-
-        val wet3 = Sensor()
-        wet3.name = "h3"
-
-        val wet4 = Sensor()
-        wet4.name = "h4"
-
-        val wet5 = Sensor()
-        wet5.name = "h5"
-
-        val ph = Sensor()
-        ph.name = "ph"
-
-        graphAddLimit(wet1, 90f, "Alto")
-        graphAddLimit(wet1, 60f, "Mediano")
-        graphAddLimit(wet1, 40f, "Bajo")
-
-        for (i in 0..25) {
-            wet1.sensedValues.add(i, SensedValue((20..100).random().toFloat(), 1556582400L))
-            wet1.entries.add(i, Entry(i.toFloat(), (wet1.sensedValues[i].value as Float)))
-            log("${wet1.name}:  (${wet1.entries.get(i).x}, ${wet1.entries.get(i).y})")
-
-            wet2.sensedValues.add(i, SensedValue((20..100).random().toFloat(), 1556582400L))
-            wet2.entries.add(i, Entry(i.toFloat(), (wet2.sensedValues[i].value as Float)))
-            log("${wet2.name}:  (${wet2.entries.get(i).x}, ${wet2.entries.get(i).y})")
-
-            wet3.sensedValues.add(i, SensedValue((20..100).random().toFloat(), 1556582400L))
-            wet3.entries.add(i, Entry(i.toFloat(), (wet3.sensedValues[i].value as Float)))
-            log("${wet3.name}:  (${wet2.entries.get(i).x}, ${wet3.entries.get(i).y})")
-
-            wet4.sensedValues.add(i, SensedValue((20..100).random().toFloat(), 1556582400L))
-            wet4.entries.add(i, Entry(i.toFloat(), (wet4.sensedValues[i].value as Float)))
-            log("${wet4.name}:  (${wet4.entries.get(i).x}, ${wet4.entries.get(i).y})")
-
-            wet5.sensedValues.add(i, SensedValue((20..100).random().toFloat(), 1556582400L))
-            wet5.entries.add(i, Entry(i.toFloat(), (wet5.sensedValues[i].value as Float)))
-            log("${wet5.name}:  (${wet4.entries.get(i).x}, ${wet5.entries.get(i).y})")
-
-            ph.sensedValues.add(i, SensedValue((20..100).random().toFloat(), 1556582400L))
-            ph.entries.add(i, Entry(i.toFloat(), (ph.sensedValues[i].value as Float)))
-            log("${ph.name}:  (${ph.entries.get(i).x}, ${ph.entries.get(i).y})")
-        }
-
-
-        wet1.lineDataSet = LineDataSet(wet1.entries, "h1")
-        lineDataSetConfig(wet1.lineDataSet)
-        lineDataSetChangeLineColor(wet1.lineDataSet, Color.YELLOW)
-
-        wet2.lineDataSet = LineDataSet(wet2.entries, "h2")
-        lineDataSetConfig(wet2.lineDataSet)
-        lineDataSetChangeLineColor(wet2.lineDataSet, Color.CYAN)
-
-        wet3.lineDataSet = LineDataSet(wet3.entries, "h3")
-        lineDataSetConfig(wet3.lineDataSet)
-        lineDataSetChangeLineColor(wet3.lineDataSet, Color.BLUE)
-
-        wet4.lineDataSet = LineDataSet(wet4.entries, "h4")
-        lineDataSetConfig(wet4.lineDataSet)
-        lineDataSetChangeLineColor(wet4.lineDataSet, Color.GREEN)
-
-        wet5.lineDataSet = LineDataSet(wet5.entries, "h5")
-        lineDataSetConfig(wet5.lineDataSet)
-        lineDataSetChangeLineColor(wet5.lineDataSet, Color.MAGENTA)
-
-        ph.lineDataSet = LineDataSet(ph.entries, "ph")
-        lineDataSetConfig(ph.lineDataSet)
-        lineDataSetChangeLineColor(ph.lineDataSet, Color.RED)
-
-        val lineDataSets: MutableList<LineDataSet> = mutableListOf()
-        lineDataSets.add(0, wet1.lineDataSet)
-        lineDataSets.add(1, wet2.lineDataSet)
-        lineDataSets.add(2, wet3.lineDataSet)
-        lineDataSets.add(3, wet4.lineDataSet)
-        lineDataSets.add(4, wet5.lineDataSet)
-        //graphConfig(graphWet, "Grafica de Humedad", lineDataSets, wet1.limitLines)
-
-        lineDataSets.clear()
-        lineDataSets.add(0, ph.lineDataSet)
-        //graphConfig(graphPh, "Grafica de PH", lineDataSets, null)
-    }
-
-    //Extras
-
 
     //Message
     private fun toast(message: String) {
