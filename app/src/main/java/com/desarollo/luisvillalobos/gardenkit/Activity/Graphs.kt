@@ -208,13 +208,9 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
 
     //ClickListener from Spinner implementation
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        if (position == 0) {
-            btn_date_from.visibility = View.INVISIBLE
-            btn_date_to.visibility = View.INVISIBLE
-            itemChoosed = position
-        } else {
-            itemChoosed = position
-        }
+        itemChoosed = position
+        btn_date_from.visibility = View.INVISIBLE
+        btn_date_to.visibility = View.INVISIBLE
 
         if (listOfChoose[position] == "Escoger fechas") {
             btn_date_to.visibility = View.VISIBLE
