@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    tools:context=".View.graphsJ">
+    tools:context=".Activity.Graphs">
 
 
     <android.support.constraint.Guideline
@@ -98,7 +98,7 @@
             android:textAlignment="center" />
 
         <ImageButton
-            android:id="@+id/btn_date_to"
+            android:id="@+id/btn_date_from"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
@@ -108,7 +108,7 @@
             android:visibility="invisible" />
 
         <ImageButton
-            android:id="@+id/btn_date_from"
+            android:id="@+id/btn_date_to"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"

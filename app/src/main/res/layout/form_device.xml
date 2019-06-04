@@ -7,7 +7,7 @@
     android:layout_centerHorizontal="true"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context=".View.FormDeviceJ">
+    tools:context=".Activity.FormDevice">
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline2"
