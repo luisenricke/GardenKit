@@ -414,9 +414,9 @@ public class graphsJ extends AppCompatActivity {
                             graphWet.getAxisLeft().setDrawLimitLinesBehindData(true);
 
                             //Animation
-                            graphWet.animateX(2500, Easing.EasingOption.EaseOutSine);
+                            graphWet.animateX(2500, Easing.EaseOutSine);
 
-                            graphPh.animateX(2500, Easing.EasingOption.EaseOutSine);
+                            graphPh.animateX(2500, Easing.EaseOutSine);
                             /*graphH20.animateX(2500, Easing.EasingOption.EaseOutSine);
                             graphV.animateX(2500, Easing.EasingOption.EaseOutSine);*/
 
