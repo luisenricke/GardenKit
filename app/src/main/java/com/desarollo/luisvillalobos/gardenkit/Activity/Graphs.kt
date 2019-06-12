@@ -124,7 +124,6 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
 
     private fun sendBtnClick() {
         calendarInstance.time = Date(System.currentTimeMillis())
-        log("from long: " + longFrom.toString())
         when (itemChoosed) {
             0 -> {
                 toast("Selecciona una opción valida")
@@ -155,8 +154,10 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
                 loadDataByDates(longFrom, 0)
             }
             6 -> {
-                log(DATEF.format(longFrom) + " - " + DATEF.format(longTo))
-                loadDataByDates(longFrom, longTo)
+                if (longFrom < longTo)
+                    loadDataByDates(longFrom, longTo)
+                else
+                    toast("Error en las fechas, vuelve a ingresarlos")
             }
         }
     }
@@ -226,17 +227,16 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
     private fun loadDataByDates(date_from: Long, date_to: Long) {
         val dataRequest = DataRequest()
         dataRequest.nameJSONObject = "data"
+        val emailDotDevice = device.device_request
+        val apiKey = device.apikey_request
 
-        val emailDotDevice = "device@dev_bitbot_test.dev_bitbot_test"
-        val apiKey = "d8a08f2ed52ec23463402769c3b0ccb6a8e4c6fa4bb6ea77f320cdbf553a2521"
         var URL_REQUEST: String? = null
-
         if (date_from == 0L && date_to == 0L) //All Data
             URL_REQUEST = JSON_URL + DEVICE + emailDotDevice
         if (date_from != 0L && date_to == 0L)
             URL_REQUEST = JSON_URL + DEVICE + emailDotDevice + AT_FROM + (date_from / 1000) + SORT + ORDER
         if (date_from != 0L && date_to != 0L)
-            URL_REQUEST = JSON_URL + DEVICE + emailDotDevice + AT_FROM + date_from / 1000 + AT_TO + date_to / 1000 + SORT + ORDER
+            URL_REQUEST = JSON_URL + DEVICE + emailDotDevice + AT_FROM + (date_from / 1000) + AT_TO + (date_to / 1000) + SORT + ORDER
 
         var stringRequest: StringRequest = object : StringRequest(
                 Method.GET,
@@ -290,27 +290,27 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
                             val aux = results.getJSONObject(element)
                             val data = aux.getJSONObject("data")
 
-                            wet1.sensedValues.add(element, SensedValue(/*data.getString(wet1.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            wet1.sensedValues.add(element, SensedValue(data.getString(wet1.name).toFloat(), aux.getLong("at")))
                             wet1.entries.add(element, Entry(element.toFloat(), (wet1.sensedValues[element].value as Float)))
                             log("${wet1.name}:  (${wet1.entries.get(element).x}, ${wet1.entries.get(element).y})")
 
-                            wet2.sensedValues.add(element, SensedValue(/*data.getString(wet2.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            wet2.sensedValues.add(element, SensedValue(data.getString(wet2.name).toFloat(), aux.getLong("at")))
                             wet2.entries.add(element, Entry(element.toFloat(), (wet2.sensedValues[element].value as Float)))
                             log("${wet2.name}:  (${wet2.entries.get(element).x}, ${wet2.entries.get(element).y})")
 
-                            wet3.sensedValues.add(element, SensedValue(/*data.getString(wet3.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            wet3.sensedValues.add(element, SensedValue(data.getString(wet3.name).toFloat(), aux.getLong("at")))
                             wet3.entries.add(element, Entry(element.toFloat(), (wet3.sensedValues[element].value as Float)))
                             log("${wet3.name}:  (${wet3.entries.get(element).x}, ${wet3.entries.get(element).y})")
 
-                            wet4.sensedValues.add(element, SensedValue(/*data.getString(wet4.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            wet4.sensedValues.add(element, SensedValue(data.getString(wet4.name).toFloat(), aux.getLong("at")))
                             wet4.entries.add(element, Entry(element.toFloat(), (wet4.sensedValues[element].value as Float)))
                             log("${wet4.name}:  (${wet4.entries.get(element).x}, ${wet4.entries.get(element).y})")
 
-                            wet5.sensedValues.add(element, SensedValue(/*data.getString(wet5.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            wet5.sensedValues.add(element, SensedValue(data.getString(wet5.name).toFloat(), aux.getLong("at")))
                             wet5.entries.add(element, Entry(element.toFloat(), (wet5.sensedValues[element].value as Float)))
                             log("${wet5.name}:  (${wet5.entries.get(element).x}, ${wet5.entries.get(element).y})")
 
-                            ph.sensedValues.add(element, SensedValue(/*data.getString(ph.name).toFloat()*/(20..100).random().toFloat(), aux.getLong("at")))
+                            ph.sensedValues.add(element, SensedValue(data.getString(ph.name).toFloat(), aux.getLong("at")))
                             ph.entries.add(element, Entry(element.toFloat(), (ph.sensedValues[element].value as Float)))
                             log("${ph.name}:  (${ph.entries.get(element).x}, ${ph.entries.get(element).y})")
                         }
@@ -338,15 +338,6 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
                         ph.lineDataSet = LineDataSet(ph.entries, "ph")
                         lineDataSetConfig(ph.lineDataSet)
                         lineDataSetChangeLineColor(ph.lineDataSet, Color.RED)
-/*
-                    val lineDataSets: MutableList<LineDataSet> = mutableListOf()
-                    lineDataSets.add(0, wet1.lineDataSet)
-                    lineDataSets.add(1, wet2.lineDataSet)
-                    lineDataSets.add(2, wet3.lineDataSet)
-                    lineDataSets.add(3, wet4.lineDataSet)
-                    lineDataSets.add(4, wet5.lineDataSet)
-                    graphConfig(this.graphWet, "Grafica de Humedad", lineDataSets, wet1.limitLines)
-*/
 
                         graphWet.description.text = "Grafica de Humedad"
                         graphWet.description.textSize = 10f
@@ -362,12 +353,6 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
 
                         graphWet.animateX(2500, Easing.EaseOutSine)
                         graphWet.invalidate() // refresh
-
-/*
-                    lineDataSets.clear()
-                    lineDataSets.add(0, ph.lineDataSet)
-                    graphConfig(graphPh, "Grafica de PH", lineDataSets, null)
-*/
 
                         graphPh.description.text = "Grafica de PH"
                         graphPh.description.textSize = 10f
@@ -385,19 +370,18 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
                         graphPh.invalidate() // refresh
                     } catch (e: Exception) {
                         log("${e.message}")
-                        toast("Verifique su conexión a Inteernet")
+                        toast("Verifique los datos del dispositivo o si tiene Internet")
                     }
                 },
                 Response.ErrorListener {
-                    log("Within internet")
-                    toast("Verifique su conexión a Inteernet")
+                    toast("Verifique los datos del dispositivo")
                 }
         ) {
             @Throws(AuthFailureError::class)
             override fun getHeaders(): Map<String, String> {
                 val headers = HashMap<String, String>()
                 headers["Content-Type"] = "application/json"
-                headers[API] = apiKey
+                headers[API] = apiKey!!
                 return headers
             }
         }
