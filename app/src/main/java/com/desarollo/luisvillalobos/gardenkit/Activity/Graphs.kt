@@ -220,7 +220,7 @@ class Graphs : AppCompatActivity(), View.OnClickListener, AdapterView.OnItemSele
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     //ManageGraphs

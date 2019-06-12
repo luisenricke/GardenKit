@@ -7,7 +7,6 @@
     android:background="#FFFFFF"
     tools:context=".Activity.Graphs">
 
-
     <android.support.constraint.Guideline
         android:id="@+id/guideline2"
         android:layout_width="wrap_content"
@@ -81,14 +80,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/img_logo">
 
-        <!-- FIXME: Fix the context of views and clean useful-->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:text="Periodo: "
-            android:visibility="gone" />
-
         <Spinner
             android:id="@+id/spn_choose"
             android:layout_width="wrap_content"
@@ -125,28 +116,6 @@
             android:background="#FFF"
             android:paddingVertical="10dp"
             android:src="@drawable/ic_send" />
-
-        <EditText
-            android:id="@+id/in_choosedate_to"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:focusable="false"
-            android:hint="1er Fecha"
-            android:inputType="text"
-            android:textAlignment="center"
-            android:visibility="gone" />
-
-        <EditText
-            android:id="@+id/in_choosedate_from"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:enabled="false"
-            android:focusable="false"
-            android:hint="2da Fecha"
-            android:inputType="text"
-            android:textAlignment="center"
-            android:visibility="gone" />
 
     </LinearLayout>
 

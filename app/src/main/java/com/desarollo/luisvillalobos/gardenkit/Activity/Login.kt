@@ -32,18 +32,10 @@ class Login : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
         setup()
-/*
-        var settingss: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        var editor: SharedPreferences.Editor = settingss.edit()
-        editor.putBoolean("logged", false)
-        editor.remove("user_id")
-        editor.apply()
-*/
 
-        //FIXME: Check no pass if not exist USERID
         val settings: SharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         if (settings.getBoolean(IS_LOGGED, true)) {
-            val intent = Intent(baseContext, ListDevices::class.java) //FIXME: Check flags of intent
+            val intent = Intent(baseContext, ListDevices::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
@@ -96,7 +88,7 @@ class Login : AppCompatActivity(), View.OnClickListener {
                         .putString(USERID, id)
                 editor.apply()
                 toast("Ha iniciado correctamente sesión")
-                val intent = Intent(baseContext, ListDevices::class.java)//FIXME: Check flags of intents
+                val intent = Intent(baseContext, ListDevices::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -105,7 +97,7 @@ class Login : AppCompatActivity(), View.OnClickListener {
                 toast("Los datos son incorrectos")
         } else {
             if (in_name.text.isNotEmpty() && in_password.text.trim().length > 4) {// FIXME: create function to validate fields
-                var user = User("", in_name.text.toString(), in_password.text.toString(), 3)//FIXME: Validate email
+                var user = User("", in_name.text.toString(), in_password.text.toString(), 3)
                 if (User.createUser(user)) {
                     toast("Se ha registrado correctamente")
                     btn_login.performClick()
