@@ -31,10 +31,16 @@ class DeviceAdapter(internal var context: Context, private var deviceList: Array
 
     fun add(device: Device) {
         deviceList.add(device)
+
     }
 
-    fun delete(device: Device){
+    fun delete(device: Device) {
         deviceList.remove(device)
+    }
+
+    fun update(list: ArrayList<Device>) {
+        deviceList = list
+        notifyDataSetChanged()
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {

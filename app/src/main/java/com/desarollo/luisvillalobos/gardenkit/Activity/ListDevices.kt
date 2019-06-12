@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.database.Cursor
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -12,10 +11,8 @@ import android.view.*
 import android.widget.*
 import com.desarollo.luisvillalobos.gardenkit.Controller.DBHelper
 import com.desarollo.luisvillalobos.gardenkit.Controller.DeviceAdapter
-import com.desarollo.luisvillalobos.gardenkit.Controller.DeviceCursorAdapter
 import com.desarollo.luisvillalobos.gardenkit.Controller.SetUpActivity
 import com.desarollo.luisvillalobos.gardenkit.Model.Device
-import com.desarollo.luisvillalobos.gardenkit.Model.User
 import com.desarollo.luisvillalobos.gardenkit.R
 import kotlinx.android.synthetic.main.list_devices.*
 
@@ -23,7 +20,11 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
 
     companion object {
         const val DEVICE_PARCEABLE_TAG = "device"
-        const val REQUEST_FORMDEVICE = 123
+        const val DEVICE_OPTION_TAG = "option"
+        const val DEVICE_ID_TAG = "id_device"
+        const val REQUEST_FORMDEVICE_ADD = 123
+        const val REQUEST_FORMDEVICE_READ = 234
+        const val REQUEST_FORMDEVICE_UPDATE = 345
     }
 
     private var key: Int = 0
@@ -44,7 +45,7 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
                     .remove(Login.USERID)
             editor.apply()
 
-            val intent = Intent(this, Login::class.java)//FIXME: Check flags of intent
+            val intent = Intent(this, Login::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -99,7 +100,7 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
         editor.remove(Login.USERID)
         editor.apply()
 
-        val intent = Intent(this, Login::class.java)//FIXME: Check flags of intent
+        val intent = Intent(this, Login::class.java)
         finish()
         startActivity(intent)
     }
@@ -107,7 +108,8 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
     private fun addBtnClick() {
         val intent: Intent = Intent(this, FormDevice::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-        startActivityForResult(intent, REQUEST_FORMDEVICE)
+        intent.putExtra(DEVICE_OPTION_TAG, REQUEST_FORMDEVICE_ADD)
+        startActivityForResult(intent, REQUEST_FORMDEVICE_ADD)
     }
 
     private fun homeBtnClick() {}
@@ -133,26 +135,33 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
         }
     }
 
-    //TODO: make function to delete and modify items
-    //TODO: evaluate if get view for choose action
     override fun onContextItemSelected(item: MenuItem?): Boolean {
-        return when (item!!.itemId) {
-            R.id.item_consultar -> {
+        val info: AdapterView.AdapterContextMenuInfo = item?.menuInfo as AdapterView.AdapterContextMenuInfo
+        val deviceSelected = deviceAdapter.getItem(info.position) as Device
 
-                log("click consultar")
+        return when (item.itemId) {
+            R.id.item_consultar -> {
+                val intent: Intent = Intent(this, FormDevice::class.java)
+                intent.putExtra(DEVICE_PARCEABLE_TAG, deviceSelected)
+                intent.putExtra(DEVICE_OPTION_TAG, REQUEST_FORMDEVICE_READ)
+                intent.flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or Intent.FLAG_ACTIVITY_NO_HISTORY
+                startActivityForResult(intent, REQUEST_FORMDEVICE_UPDATE)
                 return true
             }
             R.id.item_modificar -> {
-                log("click modificar")
+                val intent: Intent = Intent(this, FormDevice::class.java)
+                intent.putExtra(DEVICE_PARCEABLE_TAG, deviceSelected)
+                intent.putExtra(DEVICE_ID_TAG, deviceSelected.id)
+                intent.putExtra(DEVICE_OPTION_TAG, REQUEST_FORMDEVICE_UPDATE)
+                intent.flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or Intent.FLAG_ACTIVITY_NO_HISTORY
+                startActivityForResult(intent, REQUEST_FORMDEVICE_UPDATE)
                 return true
             }
             R.id.item_eliminar -> {
-                val info: AdapterView.AdapterContextMenuInfo = item.menuInfo as AdapterView.AdapterContextMenuInfo
-                val deviceDeleted = deviceAdapter.getItem(info.position) as Device
-
-                if(Device.deleteDevice(deviceDeleted.id)){
-                    deviceAdapter.delete(deviceDeleted)
+                if (Device.deleteDevice(deviceSelected.id)) {
+                    deviceAdapter.delete(deviceSelected)
                     deviceAdapter.notifyDataSetChanged()
+                    deviceAdapter.update(Device.readDevicesWithUser(key)!!)
                     toast("Dispositivo eliminado")
                 } else
                     toast("Hubo algun problema al eliminarlo")
@@ -181,15 +190,29 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
     //Extras
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_FORMDEVICE && resultCode == Activity.RESULT_OK) {
+
+        if (resultCode == Activity.RESULT_OK) {
             val device: Device? = data?.extras!!.getParcelable(DEVICE_PARCEABLE_TAG)
             DBHelper.openDB(baseContext)
-            if (Device.createDevice(device!!)) {
-                deviceAdapter.add(device)
-                deviceAdapter.notifyDataSetChanged()
-                toast("Dispositivo agregado")
-            } else
-                toast("El nombre ya ha sido utilizado, intente otro")
+            if (requestCode == REQUEST_FORMDEVICE_ADD) {
+                if (Device.createDevice(device!!)) {
+                    deviceAdapter.add(device)
+                    deviceAdapter.notifyDataSetChanged()
+                    deviceAdapter.update(Device.readDevicesWithUser(key)!!)
+                    toast("Dispositivo agregado")
+                } else
+                    toast("El nombre ya ha sido utilizado, intente otro")
+            }
+
+            if (requestCode == REQUEST_FORMDEVICE_UPDATE) {
+                device?.id = data.extras!!.getInt(DEVICE_ID_TAG)
+                if (Device.updateDevice(device!!)) {
+                    deviceAdapter.update(Device.readDevicesWithUser(key)!!)
+                    deviceAdapter.notifyDataSetChanged()
+                    toast("Dispositivo actualizado")
+                } else
+                    toast("No se ha podido actualizar el dispositivo")
+            }
         }
     }
 
