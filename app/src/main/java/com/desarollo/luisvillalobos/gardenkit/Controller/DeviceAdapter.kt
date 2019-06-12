@@ -33,6 +33,10 @@ class DeviceAdapter(internal var context: Context, private var deviceList: Array
         deviceList.add(device)
     }
 
+    fun delete(device: Device){
+        deviceList.remove(device)
+    }
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val view: View
         val viewHolder: ViewHolder

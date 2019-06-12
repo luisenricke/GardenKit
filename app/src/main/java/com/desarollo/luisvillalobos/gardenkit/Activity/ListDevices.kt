@@ -114,7 +114,7 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
 
     //ClickListener from ListView implementation
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        val lblName:TextView = view!!.findViewById(R.id.lblUser)
+        val lblName: TextView = view!!.findViewById(R.id.lblUser)
         val aux = lblName.text.toString()
         val device: Device = Device.readDevice(aux)!!
         var intent: Intent = Intent(this, Graphs::class.java)
@@ -137,12 +137,25 @@ class ListDevices : AppCompatActivity(), View.OnClickListener, AdapterView.OnIte
     //TODO: evaluate if get view for choose action
     override fun onContextItemSelected(item: MenuItem?): Boolean {
         return when (item!!.itemId) {
+            R.id.item_consultar -> {
+
+                log("click consultar")
+                return true
+            }
             R.id.item_modificar -> {
                 log("click modificar")
                 return true
             }
             R.id.item_eliminar -> {
-                log("click eliminar")
+                val info: AdapterView.AdapterContextMenuInfo = item.menuInfo as AdapterView.AdapterContextMenuInfo
+                val deviceDeleted = deviceAdapter.getItem(info.position) as Device
+
+                if(Device.deleteDevice(deviceDeleted.id)){
+                    deviceAdapter.delete(deviceDeleted)
+                    deviceAdapter.notifyDataSetChanged()
+                    toast("Dispositivo eliminado")
+                } else
+                    toast("Hubo algun problema al eliminarlo")
                 return true
             }
             else -> super.onContextItemSelected(item)
