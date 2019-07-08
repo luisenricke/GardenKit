@@ -132,14 +132,6 @@ class FormDevice : AppCompatActivity(), View.OnClickListener {
                 in_name.text.isNotEmpty()
     }
 
-    private fun disableEditText(editText: EditText) {
-        editText.isFocusable = false
-        //editText.isEnabled = false
-        editText.isCursorVisible = false
-        editText.keyListener = null
-        editText.setBackgroundColor(Color.TRANSPARENT)
-    }
-
     //Message
     private fun toast(message: String) {
         Toast.makeText(baseContext, "$message", Toast.LENGTH_LONG).show()
